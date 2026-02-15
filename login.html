@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nomis — Access</title>
+
+  <!-- PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nomis">
+  <meta name="theme-color" content="#080810">
+  <link rel="apple-touch-icon" href="nomis-icon.svg">
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:     #080810;
+      --bg2:    #0e0e1a;
+      --bg3:    #13131f;
+      --border: rgba(255,255,255,0.06);
+      --text:   #e8e8f0;
+      --muted:  #555570;
+      --accent: #5b6af0;
+      --accent2:#7c8ff5;
+      --green:  #22d48a;
+      --red:    #f05b6a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(91,106,240,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(91,106,240,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* Glow */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(91,106,240,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .login-wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Logo */
+    .login-logo {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .login-logo-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      position: relative;
+    }
+
+    .login-logo-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .login-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 0.3em;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .login-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* Status indicator */
+    .login-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 40px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--green);
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,212,138,0.4); }
+      50%       { opacity: 0.7; box-shadow: 0 0 0 5px rgba(34,212,138,0); }
+    }
+
+    /* Form */
+    .login-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(91,106,240,0.4), transparent);
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .field-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .field-input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .field-input:focus { border-color: var(--accent); }
+    .field-input::placeholder { color: var(--muted); }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+
+    .login-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+    .login-btn:active { transform: translateY(0); }
+    .login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .login-error {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: rgba(240,91,106,0.08);
+      border: 1px solid rgba(240,91,106,0.2);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--red);
+      text-align: center;
+      display: none;
+    }
+
+    .login-error.show { display: block; animation: fadeUp 0.2s ease; }
+
+    /* Corner decorations */
+    .corner {
+      position: absolute;
+      width: 16px; height: 16px;
+      opacity: 0.4;
+    }
+    .corner-tl { top: 12px; left: 12px; border-top: 1px solid var(--accent); border-left: 1px solid var(--accent); }
+    .corner-tr { top: 12px; right: 12px; border-top: 1px solid var(--accent); border-right: 1px solid var(--accent); }
+    .corner-bl { bottom: 12px; left: 12px; border-bottom: 1px solid var(--accent); border-left: 1px solid var(--accent); }
+    .corner-br { bottom: 12px; right: 12px; border-bottom: 1px solid var(--accent); border-right: 1px solid var(--accent); }
+  </style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="login-logo">
+    <div class="login-logo-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <defs>
+          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#080810"/>
+            <stop offset="100%" style="stop-color:#0e0e1a"/>
+          </linearGradient>
+          <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#7c8ff5"/>
+            <stop offset="100%" style="stop-color:#5b6af0"/>
+          </linearGradient>
+        </defs>
+        <rect width="512" height="512" rx="80" fill="url(#bg)"/>
+        <path d="M 256 48 A 208 208 0 0 1 464 256" fill="none" stroke="#5b6af0" stroke-width="1.5" stroke-opacity="0.5"/>
+        <path d="M 48 256 A 208 208 0 0 1 256 464" fill="none" stroke="#5b6af0" stroke-width="1.5" stroke-opacity="0.5"/>
+        <path d="M 48 80 L 48 48 L 80 48" fill="none" stroke="#5b6af0" stroke-width="2" stroke-opacity="0.6"/>
+        <path d="M 464 80 L 464 48 L 432 48" fill="none" stroke="#5b6af0" stroke-width="2" stroke-opacity="0.6"/>
+        <path d="M 48 432 L 48 464 L 80 464" fill="none" stroke="#5b6af0" stroke-width="2" stroke-opacity="0.6"/>
+        <path d="M 464 432 L 464 464 L 432 464" fill="none" stroke="#5b6af0" stroke-width="2" stroke-opacity="0.6"/>
+        <text x="256" y="290" text-anchor="middle" font-family="Arial Black, sans-serif" font-weight="900" font-size="96" letter-spacing="14" fill="url(#glow)">NOMIS</text>
+        <circle cx="256" cy="352" r="4" fill="#22d48a" opacity="0.9"/>
+        <circle cx="256" cy="352" r="8" fill="none" stroke="#22d48a" stroke-width="1" opacity="0.3"/>
+      </svg>
+    </div>
+    <div class="login-title">NOMIS</div>
+    <div class="login-sub">Personal AI Operating System</div>
+  </div>
+
+  <div class="login-status">
+    <div class="status-dot"></div>
+    Core Online
+  </div>
+
+  <div class="login-card">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <div class="field">
+      <label class="field-label" for="username">Username</label>
+      <input
+        class="field-input"
+        type="text"
+        id="username"
+        placeholder="Enter username"
+        autocomplete="username"
+      />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="password">Password</label>
+      <input
+        class="field-input"
+        type="password"
+        id="password"
+        placeholder="Enter password"
+        autocomplete="current-password"
+        onkeydown="if(event.key==='Enter') login()"
+      />
+    </div>
+
+    <button class="login-btn" id="login-btn" onclick="login()">
+      ACCESS NOMIS
+    </button>
+
+    <div class="login-error" id="login-error">
+      Access denied — invalid credentials
+    </div>
+  </div>
+</div>
+
+<script>
+  const MIDDLEWARE_URL = 'https://aware-clarity-production.up.railway.app';
+  const NOMIS_KEY      = 'nomis-core-a7x9k2m4p8q3123ardsfasdfcvbzdfd';
+
+  // Check if already authenticated
+  if (sessionStorage.getItem('nomis_auth') === 'true') {
+    window.location.href = 'dashboard.html';
+  }
+
+  async function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const btn      = document.getElementById('login-btn');
+    const error    = document.getElementById('login-error');
+
+    if (!username || !password) return;
+
+    btn.disabled = true;
+    btn.textContent = 'AUTHENTICATING...';
+    error.classList.remove('show');
+
+    try {
+      const res = await fetch(`${MIDDLEWARE_URL}/auth`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-nomis-key': NOMIS_KEY
+        },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        sessionStorage.setItem('nomis_auth', 'true');
+        window.location.href = 'dashboard.html';
+      } else {
+        error.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'ACCESS NOMIS';
+      }
+    } catch (err) {
+      error.textContent = 'Connection error — try again';
+      error.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'ACCESS NOMIS';
+    }
+  }
+</script>
+</body>
+</html>
