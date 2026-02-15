@@ -852,8 +852,6 @@
             id="chat-input"
             placeholder="Tell Nomis... 'I did chest today' or 'slept 7.5 hours, felt great'"
             rows="1"
-            onkeydown="handleKey(event)"
-            oninput="autoResize(this)"
           ></textarea>
           <button class="chat-attach" onclick="triggerImageUpload()" title="Attach image">📎</button>
         </div>
@@ -864,7 +862,7 @@
   </main>
 </div>
 
-<script> document.addEventListener('DOMContentLoaded', () => {
+<script>
   // ── Config ────────────────────────────────────────────────────────────────
   const MIDDLEWARE_URL = 'https://aware-clarity-production.up.railway.app';
   const NOMIS_KEY      = 'nomis-core-a7x9k2m4p8q3123ardsfasdfcvbzdfd';
@@ -1341,7 +1339,6 @@
 
   // ── Init ──────────────────────────────────────────────────────────────────
   loadDashboard();
-  });
 </script>
 </body>
 </html>
