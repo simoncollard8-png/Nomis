@@ -500,11 +500,12 @@
       /* Main fills full width */
       .main { height: calc(100dvh - var(--top-h)); }
 
-      /* Page content above nav + chat */
+      /* Page content — flex fills remaining space naturally */
       .page-content {
         padding: 16px;
-        padding-bottom: 0;
-        height: calc(100dvh - var(--top-h) - var(--chat-h) - var(--nav-h) - env(safe-area-inset-bottom));
+        padding-bottom: 8px;
+        flex: 1;
+        min-height: 0;
         overflow-y: auto;
       }
 
@@ -526,7 +527,8 @@
       /* Chat bar mobile */
       .chat-bar {
         padding: 10px 12px;
-        padding-bottom: max(10px, env(safe-area-inset-bottom));
+        padding-bottom: max(env(safe-area-inset-bottom), 10px);
+        flex-shrink: 0;
       }
 
       .chat-messages { max-height: 140px; }
@@ -536,10 +538,11 @@
         display: flex;
         align-items: center;
         justify-content: space-around;
-        height: var(--nav-h);
+        min-height: var(--nav-h);
         background: var(--bg2);
         border-top: 1px solid var(--border);
-        padding-bottom: env(safe-area-inset-bottom);
+        /* Sit above iPhone home indicator */
+        padding-bottom: max(env(safe-area-inset-bottom), 10px);
         position: relative;
         z-index: 50;
         flex-shrink: 0;
@@ -639,6 +642,196 @@
       .more-overlay.open { display: block; }
     }
 
+    /* ═══════════════════════════════════════════════
+       SHARED BUTTONS
+    ═══════════════════════════════════════════════ */
+    .btn-primary {
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 9px; padding: 9px 18px;
+      font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em;
+    }
+    .btn-primary:hover  { background: var(--accent2); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-sm {
+      background: rgba(91,106,240,0.12); color: var(--accent2);
+      border: 1px solid rgba(91,106,240,0.25); border-radius: 8px;
+      padding: 7px 14px; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem; cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em;
+    }
+    .btn-sm:hover { background: rgba(91,106,240,0.22); }
+
+    .btn-outline {
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border2); border-radius: 9px;
+      padding: 8px 16px; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent2); }
+
+    .btn-danger {
+      background: transparent; color: var(--red);
+      border: 1px solid rgba(240,91,106,0.2); border-radius: 7px;
+      padding: 5px 10px; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-danger:hover { background: rgba(240,91,106,0.1); }
+
+    /* ═══════════════════════════════════════════════
+       SHARED FORM FIELDS
+    ═══════════════════════════════════════════════ */
+    .field-group { margin-bottom: 16px; }
+    .field-lbl {
+      display: block; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 7px;
+    }
+    .field-in {
+      width: 100%; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 9px; padding: 10px 14px; color: var(--text);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .field-in:focus { border-color: var(--accent); }
+    .field-in::placeholder { color: var(--muted); }
+
+    .field-sel {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 9px;
+      padding: 9px 12px; color: var(--text); font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; outline: none; cursor: pointer; transition: border-color 0.2s;
+    }
+    .field-sel:focus { border-color: var(--accent); }
+    .field-sel option { background: var(--bg2); }
+
+    /* ═══════════════════════════════════════════════
+       MODALS
+    ═══════════════════════════════════════════════ */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,8,16,0.85); backdrop-filter: blur(6px);
+      z-index: 400; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-overlay.open { display: flex; animation: mFadeIn 0.2s ease; }
+    @keyframes mFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-box {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 18px; width: 100%; max-width: 520px;
+      max-height: 85vh; overflow-y: auto;
+      animation: mSlideUp 0.25s ease;
+    }
+    @keyframes mSlideUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--bg2); z-index: 1; border-radius: 18px 18px 0 0;
+    }
+    .modal-title  { font-size: 0.95rem; font-weight: 700; letter-spacing: 0.04em; }
+    .modal-close  { background: none; border: none; color: var(--muted); font-size: 1.1rem; cursor: pointer; padding: 4px 6px; transition: color 0.15s; line-height: 1; }
+    .modal-close:hover { color: var(--text); }
+    .modal-body   { padding: 20px; }
+
+    /* ═══════════════════════════════════════════════
+       EXERCISE LIBRARY
+    ═══════════════════════════════════════════════ */
+    .exercise-filters { margin-bottom: 18px; }
+    .filter-row { display: flex; gap: 8px; margin-top: 10px; }
+    .filter-row .field-sel { flex: 1; }
+
+    .exercise-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 768px) { .exercise-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .exercise-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .exercise-card:hover { border-color: var(--accent); background: rgba(91,106,240,0.06); transform: translateY(-1px); }
+
+    .ex-card-muscle   { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+    .ex-card-name     { font-size: 0.82rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 5px; }
+    .ex-card-equipment{ font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--muted); }
+
+    .muscle-color-chest     { color: #f05b6a; }
+    .muscle-color-back      { color: #5bcff0; }
+    .muscle-color-legs      { color: #22d48a; }
+    .muscle-color-shoulders { color: #f0b15b; }
+    .muscle-color-arms      { color: #a78bfa; }
+    .muscle-color-core      { color: #5b6af0; }
+
+    .ex-detail-img { width: 100%; height: 180px; object-fit: cover; border-radius: 10px; margin-bottom: 16px; background: var(--bg3); border: 1px solid var(--border); }
+    .ex-detail-desc { font-size: 0.82rem; color: var(--text); line-height: 1.75; margin-bottom: 14px; }
+    .ex-detail-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .ex-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; padding: 4px 10px; border-radius: 6px; background: var(--bg3); border: 1px solid var(--border); color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    .ex-picker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .ex-picker-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: all 0.15s; }
+    .ex-picker-item:hover { border-color: var(--accent2); background: rgba(91,106,240,0.08); }
+    .ex-picker-name { font-size: 0.78rem; font-weight: 600; margin-bottom: 3px; }
+    .ex-picker-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--muted); }
+
+    /* ═══════════════════════════════════════════════
+       PROGRAM BUILDER
+    ═══════════════════════════════════════════════ */
+    .active-prog-card {
+      background: linear-gradient(135deg, rgba(91,106,240,0.08), rgba(34,212,138,0.04));
+      border: 1px solid rgba(91,106,240,0.22); border-radius: 14px;
+      padding: 18px; margin-bottom: 14px; position: relative; overflow: hidden;
+    }
+    .active-prog-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+    }
+
+    .prog-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px 16px; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .prog-card.is-active { border-color: rgba(91,106,240,0.35); }
+    .prog-card-name     { font-size: 0.9rem; font-weight: 700; }
+    .prog-card-meta     { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--muted); margin-top: 3px; }
+    .prog-card-actions  { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+    .prog-day-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+    .prog-day-header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    .prog-day-selects { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; }
+    .prog-day-selects .field-sel { flex: 1; min-width: 110px; font-size: 0.7rem; padding: 7px 10px; }
+    .prog-day-body { padding: 12px 14px; }
+
+    .prog-exercise-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .prog-exercise-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+    .prog-ex-name { flex: 1; font-size: 0.8rem; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .prog-ex-inputs { display: flex; gap: 5px; align-items: flex-start; flex-shrink: 0; }
+    .prog-ex-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .prog-ex-input {
+      width: 48px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 7px; padding: 5px 6px; color: var(--text);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+      text-align: center; outline: none;
+    }
+    .prog-ex-input:focus { border-color: var(--accent); }
+    .prog-ex-input::placeholder { color: var(--muted); }
+    .prog-ex-lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: var(--muted); }
+
+    .prog-ex-controls { display: flex; flex-direction: column; gap: 1px; flex-shrink: 0; }
+    .prog-ex-ctrl-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.65rem; padding: 1px 3px; line-height: 1; transition: color 0.15s; }
+    .prog-ex-ctrl-btn:hover:not(:disabled) { color: var(--text); }
+    .prog-ex-ctrl-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+    .prog-ex-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.85rem; padding: 2px 4px; transition: color 0.15s; flex-shrink: 0; line-height: 1; }
+    .prog-ex-remove:hover { color: var(--red); }
+
     /* Scrollbar */
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -686,6 +879,11 @@
       <div class="nav-item" onclick="showPage('records', this)"><span class="nav-icon">◆</span> Records</div>
       <div class="nav-item" onclick="showPage('supplements', this)"><span class="nav-icon">⬟</span> Supplements</div>
       <div class="nav-item" onclick="showPage('peptides', this)"><span class="nav-icon">⬡</span> Peptides</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Training</div>
+      <div class="nav-item" onclick="showPage('programs', this)"><span class="nav-icon">▦</span> Programs</div>
+      <div class="nav-item" onclick="showPage('exercises', this)"><span class="nav-icon">◎</span> Exercises</div>
     </div>
     <div class="nav-section">
       <div class="nav-label">Modules</div>
@@ -856,6 +1054,97 @@
         </div>
       </div>
 
+      <!-- Programs -->
+      <div class="page" id="page-programs">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Programs</div>
+            <div class="page-sub">WORKOUT PLANS</div>
+          </div>
+          <button class="btn-sm" onclick="showProgramBuilder()">+ New Program</button>
+        </div>
+
+        <!-- Active program banner -->
+        <div id="active-prog-section"></div>
+
+        <!-- Program builder (hidden by default) -->
+        <div id="program-builder" style="display:none;margin-bottom:14px;">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">New Program</div>
+              <span class="panel-action" onclick="hideProgramBuilder()">✕ Cancel</span>
+            </div>
+            <div class="panel-body">
+              <div class="field-group">
+                <label class="field-lbl">Program Name</label>
+                <input class="field-in" id="prog-name" placeholder="e.g. Push / Pull / Legs" />
+              </div>
+              <div class="field-group">
+                <label class="field-lbl">Description <span style="opacity:0.35;font-weight:300;font-size:0.58rem;">(optional)</span></label>
+                <input class="field-in" id="prog-desc" placeholder="Brief description..." />
+              </div>
+              <div style="margin-bottom:16px;">
+                <div class="field-lbl" style="margin-bottom:10px;">Training Days</div>
+                <div id="prog-days-container"></div>
+                <button class="btn-outline" onclick="addBuilderDay()" style="width:100%;margin-top:8px;justify-content:center;display:flex;gap:6px;">
+                  + Add Training Day
+                </button>
+              </div>
+              <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:12px;border-top:1px solid var(--border);">
+                <button class="btn-outline" onclick="hideProgramBuilder()">Cancel</button>
+                <button class="btn-primary" onclick="saveNewProgram()">Save Program</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- All programs -->
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">All Programs</div></div>
+          <div id="all-programs-list" style="padding:6px 16px;">
+            <div class="empty">No programs yet.<br>Create your first workout program above.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exercises -->
+      <div class="page" id="page-exercises">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Exercises</div>
+            <div class="page-sub">EXERCISE LIBRARY</div>
+          </div>
+          <button class="btn-sm" id="seed-btn" onclick="checkAndSeedExercises()" style="display:none;">Seed Library</button>
+        </div>
+
+        <div class="exercise-filters">
+          <input class="field-in" id="ex-search" placeholder="Search exercises…" oninput="filterAndRenderExercises()" />
+          <div class="filter-row">
+            <select class="field-sel" id="ex-muscle" onchange="filterAndRenderExercises()">
+              <option value="">All Muscles</option>
+              <option value="chest">Chest</option>
+              <option value="back">Back</option>
+              <option value="legs">Legs</option>
+              <option value="shoulders">Shoulders</option>
+              <option value="arms">Arms</option>
+              <option value="core">Core</option>
+            </select>
+            <select class="field-sel" id="ex-equipment" onchange="filterAndRenderExercises()">
+              <option value="">All Equipment</option>
+              <option value="barbell">Barbell</option>
+              <option value="dumbbell">Dumbbell</option>
+              <option value="cable">Cable</option>
+              <option value="machine">Machine</option>
+              <option value="bodyweight">Bodyweight</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="exercise-grid" id="exercise-grid">
+          <div class="empty" style="grid-column:1/-1;">Loading exercises…</div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Mobile bottom nav -->
@@ -921,6 +1210,46 @@
     </div>
     <div class="more-menu-item" onclick="showPageMore('peptides')">
       <span>⬡</span><span>PEPTIDES</span>
+    </div>
+    <div class="more-menu-item" onclick="showPageMore('programs')">
+      <span>▦</span><span>PROGRAMS</span>
+    </div>
+    <div class="more-menu-item" onclick="showPageMore('exercises')">
+      <span>◎</span><span>EXERCISES</span>
+    </div>
+  </div>
+</div>
+
+<!-- Exercise Detail Modal -->
+<div class="modal-overlay" id="exercise-detail-modal" onclick="if(event.target===this)closeExerciseDetailModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="ex-detail-title">Exercise</div>
+      <button class="modal-close" onclick="closeExerciseDetailModal()">✕</button>
+    </div>
+    <div class="modal-body" id="ex-detail-body"></div>
+  </div>
+</div>
+
+<!-- Exercise Picker Modal (from program builder) -->
+<div class="modal-overlay" id="exercise-picker-modal" onclick="if(event.target===this)closeExercisePicker()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Add Exercise</div>
+      <button class="modal-close" onclick="closeExercisePicker()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input class="field-in" id="picker-search" placeholder="Search exercises…" oninput="filterPicker()" style="margin-bottom:10px;" />
+      <select class="field-sel" id="picker-muscle" onchange="filterPicker()" style="width:100%;margin-bottom:12px;">
+        <option value="">All Muscles</option>
+        <option value="chest">Chest</option>
+        <option value="back">Back</option>
+        <option value="legs">Legs</option>
+        <option value="shoulders">Shoulders</option>
+        <option value="arms">Arms</option>
+        <option value="core">Core</option>
+      </select>
+      <div class="ex-picker-grid" id="picker-grid"></div>
     </div>
   </div>
 </div>
@@ -1051,6 +1380,8 @@
 
   async function loadPageData(page) {
     if (page === 'dashboard') { loadDashboard(); return; }
+    if (page === 'programs')  { loadProgramsPage(); return; }
+    if (page === 'exercises') { loadExercisesPage(); return; }
 
     const configs = {
       workouts:    { table: 'workouts',       el: 'workouts-list',    render: renderWorkout },
@@ -1354,6 +1685,499 @@
           break;
       }
     } catch (err) { console.error('Supabase write error:', err); }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // PROGRAMS MODULE
+  // ═══════════════════════════════════════════════════════════════════════
+
+  let builderDays = [];          // [{ day_of_week, muscle_group, exercises: [...] }]
+  let builderActiveDayIndex = null;
+
+  const DAYS_OF_WEEK   = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  const MUSCLE_GROUPS  = ['chest','back','legs','shoulders','arms','core','full body'];
+
+  async function loadProgramsPage() {
+    await loadAllPrograms();
+  }
+
+  async function loadAllPrograms() {
+    try {
+      const [{ data: programs }, { data: plans }] = await Promise.all([
+        db.from('programs').select('*').order('created_at', { ascending: false }),
+        db.from('workout_plans').select('*'),
+      ]);
+
+      // Active program banner
+      const active   = programs?.find(p => p.active);
+      const activeSect = document.getElementById('active-prog-section');
+      if (active) {
+        const days = plans?.filter(p => p.program_id === active.id) || [];
+        activeSect.innerHTML = `
+          <div class="active-prog-card">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--green);letter-spacing:0.1em;margin-bottom:6px;">▲ ACTIVE PROGRAM</div>
+            <div style="font-size:1.05rem;font-weight:800;margin-bottom:4px;">${active.name}</div>
+            ${active.description ? `<div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--muted);">${active.description}</div>` : ''}
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;">
+              ${days.map(d => `
+                <div style="background:rgba(91,106,240,0.1);border:1px solid rgba(91,106,240,0.2);border-radius:8px;padding:4px 10px;font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--accent2);">
+                  ${d.day_of_week} · ${d.muscle_group}
+                </div>`).join('')}
+            </div>
+          </div>`;
+      } else {
+        activeSect.innerHTML = '';
+      }
+
+      // Programs list
+      const listEl = document.getElementById('all-programs-list');
+      if (!programs?.length) {
+        listEl.innerHTML = '<div class="empty">No programs yet.<br>Create your first workout program above.</div>';
+        return;
+      }
+      listEl.innerHTML = programs.map(p => {
+        const days = plans?.filter(pl => pl.program_id === p.id) || [];
+        return `
+          <div class="prog-card ${p.active ? 'is-active' : ''}">
+            <div style="flex:1;min-width:0;">
+              <div class="prog-card-name">
+                ${p.name}
+                ${p.active ? '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.58rem;color:var(--green);margin-left:8px;">● ACTIVE</span>' : ''}
+              </div>
+              <div class="prog-card-meta">${days.length} day${days.length !== 1 ? 's' : ''}${p.description ? ' · ' + p.description : ''}</div>
+            </div>
+            <div class="prog-card-actions">
+              ${!p.active ? `<button class="btn-sm" onclick="activateProgram('${p.id}')">Set Active</button>` : ''}
+              <button class="btn-danger" onclick="deleteProgram('${p.id}')">✕</button>
+            </div>
+          </div>`;
+      }).join('');
+    } catch(e) { console.error('Programs load error:', e); }
+  }
+
+  function showProgramBuilder() {
+    builderDays = [];
+    document.getElementById('prog-name').value = '';
+    document.getElementById('prog-desc').value = '';
+    renderBuilderDays();
+    const el = document.getElementById('program-builder');
+    el.style.display = 'block';
+    setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+    // Pre-load exercises for the picker
+    if (!allExercises.length) loadExercisesData();
+  }
+
+  function hideProgramBuilder() {
+    document.getElementById('program-builder').style.display = 'none';
+    builderDays = [];
+  }
+
+  function addBuilderDay() {
+    builderDays.push({
+      day_of_week:  DAYS_OF_WEEK[builderDays.length % 7],
+      muscle_group: MUSCLE_GROUPS[0],
+      exercises: [],
+    });
+    renderBuilderDays();
+  }
+
+  function removeBuilderDay(index) {
+    builderDays.splice(index, 1);
+    renderBuilderDays();
+  }
+
+  function renderBuilderDays() {
+    const container = document.getElementById('prog-days-container');
+    if (!builderDays.length) { container.innerHTML = ''; return; }
+
+    container.innerHTML = builderDays.map((day, i) => `
+      <div class="prog-day-card" id="builder-day-${i}">
+        <div class="prog-day-header">
+          <div class="prog-day-selects">
+            <select class="field-sel" onchange="builderDays[${i}].day_of_week=this.value">
+              ${DAYS_OF_WEEK.map(d => `<option value="${d}" ${day.day_of_week===d?'selected':''}>${d.charAt(0).toUpperCase()+d.slice(1)}</option>`).join('')}
+            </select>
+            <select class="field-sel" onchange="builderDays[${i}].muscle_group=this.value">
+              ${MUSCLE_GROUPS.map(m => `<option value="${m}" ${day.muscle_group===m?'selected':''}>${m.charAt(0).toUpperCase()+m.slice(1)}</option>`).join('')}
+            </select>
+          </div>
+          <button class="prog-ex-remove" onclick="removeBuilderDay(${i})" style="color:var(--red);font-size:1rem;">✕</button>
+        </div>
+        <div class="prog-day-body">
+          ${day.exercises.length
+            ? day.exercises.map((ex, j) => renderBuilderExercise(i, j, ex)).join('')
+            : '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.65rem;color:var(--muted);padding:6px 0 8px;">No exercises added yet.</div>'
+          }
+          <button class="btn-outline" onclick="openExercisePicker(${i})" style="width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:0.68rem;">
+            + Add Exercise
+          </button>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderBuilderExercise(dayIdx, exIdx, ex) {
+    const isFirst = exIdx === 0;
+    const isLast  = exIdx === builderDays[dayIdx].exercises.length - 1;
+    return `
+      <div class="prog-exercise-item">
+        <div class="prog-ex-controls">
+          <button class="prog-ex-ctrl-btn" onclick="moveExUp(${dayIdx},${exIdx})" ${isFirst?'disabled':''}>▲</button>
+          <button class="prog-ex-ctrl-btn" onclick="moveExDown(${dayIdx},${exIdx})" ${isLast?'disabled':''}>▼</button>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="prog-ex-name">${ex.name}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.57rem;color:var(--muted);">${ex.muscle_group} · ${ex.equipment||''}</div>
+        </div>
+        <div class="prog-ex-inputs">
+          <div class="prog-ex-col">
+            <input class="prog-ex-input" placeholder="3" value="${ex.target_sets||''}"
+              onchange="builderDays[${dayIdx}].exercises[${exIdx}].target_sets=this.value" />
+            <div class="prog-ex-lbl">sets</div>
+          </div>
+          <div class="prog-ex-col">
+            <input class="prog-ex-input" placeholder="8-10" value="${ex.target_reps||''}" style="width:54px;"
+              onchange="builderDays[${dayIdx}].exercises[${exIdx}].target_reps=this.value" />
+            <div class="prog-ex-lbl">reps</div>
+          </div>
+          <div class="prog-ex-col">
+            <input class="prog-ex-input" placeholder="—" value="${ex.target_weight||''}"
+              onchange="builderDays[${dayIdx}].exercises[${exIdx}].target_weight=this.value" />
+            <div class="prog-ex-lbl">lbs</div>
+          </div>
+        </div>
+        <button class="prog-ex-remove" onclick="removeExFromDay(${dayIdx},${exIdx})">✕</button>
+      </div>`;
+  }
+
+  function moveExUp(dayIdx, exIdx) {
+    if (exIdx === 0) return;
+    const exs = builderDays[dayIdx].exercises;
+    [exs[exIdx-1], exs[exIdx]] = [exs[exIdx], exs[exIdx-1]];
+    renderBuilderDays();
+  }
+
+  function moveExDown(dayIdx, exIdx) {
+    const exs = builderDays[dayIdx].exercises;
+    if (exIdx >= exs.length - 1) return;
+    [exs[exIdx], exs[exIdx+1]] = [exs[exIdx+1], exs[exIdx]];
+    renderBuilderDays();
+  }
+
+  function removeExFromDay(dayIdx, exIdx) {
+    builderDays[dayIdx].exercises.splice(exIdx, 1);
+    renderBuilderDays();
+  }
+
+  function openExercisePicker(dayIndex) {
+    builderActiveDayIndex = dayIndex;
+    document.getElementById('picker-search').value = '';
+    document.getElementById('picker-muscle').value = '';
+    renderPickerGrid();
+    document.getElementById('exercise-picker-modal').classList.add('open');
+  }
+
+  function closeExercisePicker() {
+    document.getElementById('exercise-picker-modal').classList.remove('open');
+    builderActiveDayIndex = null;
+  }
+
+  function filterPicker() {
+    renderPickerGrid();
+  }
+
+  function renderPickerGrid() {
+    const search = document.getElementById('picker-search').value.toLowerCase();
+    const muscle = document.getElementById('picker-muscle').value;
+    let list = allExercises;
+    if (search) list = list.filter(e => e.name.toLowerCase().includes(search) || e.muscle_group.includes(search));
+    if (muscle) list = list.filter(e => e.muscle_group === muscle);
+
+    const grid = document.getElementById('picker-grid');
+    if (!list.length) {
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">No exercises found.</div>';
+      return;
+    }
+    grid.innerHTML = list.map(ex => `
+      <div class="ex-picker-item" onclick="addExerciseToDay('${ex.id}','${ex.name.replace(/'/g,"\\'")}','${ex.muscle_group}','${ex.equipment||''}')">
+        <div class="ex-picker-name">${ex.name}</div>
+        <div class="ex-picker-meta">${ex.muscle_group} · ${ex.equipment||''}</div>
+      </div>`).join('');
+  }
+
+  function addExerciseToDay(exerciseId, name, muscle_group, equipment) {
+    if (builderActiveDayIndex === null) return;
+    builderDays[builderActiveDayIndex].exercises.push({
+      exercise_id: exerciseId, name, muscle_group, equipment,
+      target_sets: '', target_reps: '', target_weight: '',
+    });
+    closeExercisePicker();
+    renderBuilderDays();
+  }
+
+  async function saveNewProgram() {
+    const name = document.getElementById('prog-name').value.trim();
+    if (!name) { alert('Please enter a program name.'); return; }
+    if (!builderDays.length) { alert('Add at least one training day.'); return; }
+
+    const btn = document.querySelector('#program-builder .btn-primary');
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    try {
+      const { data: prog, error: pErr } = await db.from('programs')
+        .insert({ name, description: document.getElementById('prog-desc').value.trim() || null, active: false })
+        .select().single();
+      if (pErr) throw pErr;
+
+      for (const day of builderDays) {
+        const { data: plan, error: plErr } = await db.from('workout_plans')
+          .insert({ program_id: prog.id, day_of_week: day.day_of_week, muscle_group: day.muscle_group })
+          .select().single();
+        if (plErr) throw plErr;
+
+        if (day.exercises.length) {
+          const rows = day.exercises.map((ex, idx) => ({
+            plan_id:       plan.id,
+            exercise_id:   ex.exercise_id,
+            order_index:   idx,
+            target_sets:   parseInt(ex.target_sets)   || null,
+            target_reps:   ex.target_reps             || null,
+            target_weight: parseFloat(ex.target_weight) || null,
+          }));
+          const { error: exErr } = await db.from('workout_plan_exercises').insert(rows);
+          if (exErr) console.error('Exercise insert error:', exErr);
+        }
+      }
+
+      hideProgramBuilder();
+      await loadAllPrograms();
+    } catch(e) {
+      console.error('Save program error:', e);
+      alert('Failed to save: ' + e.message);
+      btn.disabled = false; btn.textContent = 'Save Program';
+    }
+  }
+
+  async function activateProgram(programId) {
+    try {
+      await db.from('programs').update({ active: false }).neq('id', programId);
+      await db.from('programs').update({ active: true  }).eq('id', programId);
+      await loadAllPrograms();
+    } catch(e) { console.error('Activate error:', e); }
+  }
+
+  async function deleteProgram(programId) {
+    if (!confirm('Delete this program? This cannot be undone.')) return;
+    try {
+      await db.from('programs').delete().eq('id', programId);
+      await loadAllPrograms();
+    } catch(e) { console.error('Delete error:', e); }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // EXERCISE LIBRARY MODULE
+  // ═══════════════════════════════════════════════════════════════════════
+
+  let allExercises = [];
+
+  const MUSCLE_COLORS = {
+    chest: 'muscle-color-chest', back: 'muscle-color-back',
+    legs:  'muscle-color-legs',  shoulders: 'muscle-color-shoulders',
+    arms:  'muscle-color-arms',  core: 'muscle-color-core',
+  };
+
+  async function loadExercisesData() {
+    if (allExercises.length) return;
+    try {
+      const { data } = await db.from('exercises').select('*').order('muscle_group').order('name');
+      allExercises = data || [];
+    } catch(e) { console.error('Load exercises error:', e); }
+  }
+
+  async function loadExercisesPage() {
+    await loadExercisesData();
+    const seedBtn = document.getElementById('seed-btn');
+    if (seedBtn) seedBtn.style.display = allExercises.length ? 'none' : 'block';
+    filterAndRenderExercises();
+  }
+
+  function filterAndRenderExercises() {
+    const search    = (document.getElementById('ex-search')?.value    || '').toLowerCase();
+    const muscle    =  document.getElementById('ex-muscle')?.value    || '';
+    const equipment =  document.getElementById('ex-equipment')?.value || '';
+
+    let list = allExercises;
+    if (search)    list = list.filter(e => e.name.toLowerCase().includes(search) || e.muscle_group.includes(search));
+    if (muscle)    list = list.filter(e => e.muscle_group === muscle);
+    if (equipment) list = list.filter(e => e.equipment    === equipment);
+
+    const grid = document.getElementById('exercise-grid');
+    if (!grid) return;
+
+    if (!list.length) {
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">No exercises match your filters.</div>';
+      return;
+    }
+
+    grid.innerHTML = list.map(ex => `
+      <div class="exercise-card" onclick="showExerciseDetail('${ex.id}')">
+        <div class="ex-card-muscle ${MUSCLE_COLORS[ex.muscle_group]||''}">${ex.muscle_group}</div>
+        <div class="ex-card-name">${ex.name}</div>
+        <div class="ex-card-equipment">${ex.equipment||'—'} · ${ex.difficulty||''}</div>
+      </div>`).join('');
+  }
+
+  async function showExerciseDetail(exerciseId) {
+    const ex = allExercises.find(e => e.id === exerciseId);
+    if (!ex) return;
+
+    document.getElementById('ex-detail-title').textContent = ex.name;
+    document.getElementById('ex-detail-body').innerHTML = `
+      <div class="ex-detail-tags">
+        <span class="ex-tag">${ex.muscle_group}</span>
+        <span class="ex-tag">${ex.equipment || 'bodyweight'}</span>
+        <span class="ex-tag">${ex.difficulty || 'intermediate'}</span>
+      </div>
+      <div class="ex-detail-desc" id="ex-detail-desc-text">
+        <span style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:0.7rem;">Fetching details…</span>
+      </div>`;
+
+    document.getElementById('exercise-detail-modal').classList.add('open');
+
+    // Try middleware for description / form cues
+    try {
+      const res = await fetch(`${MIDDLEWARE_URL}/exercise-lookup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-nomis-key': NOMIS_KEY },
+        body: JSON.stringify({ exercise: ex.name, muscle_group: ex.muscle_group }),
+      });
+      const data = await res.json();
+      const descEl = document.getElementById('ex-detail-desc-text');
+      if (!descEl) return;
+
+      let html = `<p class="ex-detail-desc">${data.description || defaultDesc(ex)}</p>`;
+      if (data.form_cues?.length) {
+        html += `<div style="margin-top:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Form Cues</div>
+          <ul style="padding-left:18px;font-size:0.8rem;line-height:2;color:var(--text);">
+            ${data.form_cues.map(c => `<li>${c}</li>`).join('')}
+          </ul></div>`;
+      }
+      descEl.outerHTML = html;
+
+      if (data.image_url) {
+        const body = document.getElementById('ex-detail-body');
+        const img = document.createElement('img');
+        img.className = 'ex-detail-img'; img.src = data.image_url; img.alt = ex.name;
+        img.onerror = () => img.remove();
+        body.insertBefore(img, body.firstChild);
+      }
+    } catch(e) {
+      const descEl = document.getElementById('ex-detail-desc-text');
+      if (descEl) descEl.outerHTML = `<p class="ex-detail-desc">${defaultDesc(ex)}</p>`;
+    }
+  }
+
+  function defaultDesc(ex) {
+    return `${ex.name} is a ${ex.difficulty||'intermediate'} ${ex.equipment||'bodyweight'} exercise that primarily targets the ${ex.muscle_group} muscles.`;
+  }
+
+  function closeExerciseDetailModal() {
+    document.getElementById('exercise-detail-modal').classList.remove('open');
+  }
+
+  async function checkAndSeedExercises() {
+    if (!confirm('Seed the exercise library with 53 common exercises?')) return;
+    const btn = document.getElementById('seed-btn');
+    btn.textContent = 'Seeding…'; btn.disabled = true;
+    try {
+      const { error } = await db.from('exercises').insert(getSeedExercises());
+      if (error) throw error;
+      allExercises = [];
+      await loadExercisesPage();
+    } catch(e) {
+      alert('Seed failed: ' + e.message);
+      btn.textContent = 'Seed Library'; btn.disabled = false;
+    }
+  }
+
+  function getSeedExercises() {
+    return [
+      // Chest
+      { name:'Bench Press',             muscle_group:'chest',     equipment:'barbell',    difficulty:'intermediate' },
+      { name:'Incline Bench Press',     muscle_group:'chest',     equipment:'barbell',    difficulty:'intermediate' },
+      { name:'Decline Bench Press',     muscle_group:'chest',     equipment:'barbell',    difficulty:'intermediate' },
+      { name:'Dumbbell Press',          muscle_group:'chest',     equipment:'dumbbell',   difficulty:'beginner' },
+      { name:'Incline Dumbbell Press',  muscle_group:'chest',     equipment:'dumbbell',   difficulty:'beginner' },
+      { name:'Dumbbell Flyes',          muscle_group:'chest',     equipment:'dumbbell',   difficulty:'beginner' },
+      { name:'Cable Flyes',             muscle_group:'chest',     equipment:'cable',      difficulty:'intermediate' },
+      { name:'Push-ups',                muscle_group:'chest',     equipment:'bodyweight', difficulty:'beginner' },
+      { name:'Dips',                    muscle_group:'chest',     equipment:'bodyweight', difficulty:'intermediate' },
+      { name:'Pec Deck',                muscle_group:'chest',     equipment:'machine',    difficulty:'beginner' },
+      { name:'Chest Dips',              muscle_group:'chest',     equipment:'bodyweight', difficulty:'intermediate' },
+      // Back
+      { name:'Deadlift',                muscle_group:'back',      equipment:'barbell',    difficulty:'advanced' },
+      { name:'Barbell Row',             muscle_group:'back',      equipment:'barbell',    difficulty:'intermediate' },
+      { name:'Dumbbell Row',            muscle_group:'back',      equipment:'dumbbell',   difficulty:'beginner' },
+      { name:'Pull-ups',                muscle_group:'back',      equipment:'bodyweight', difficulty:'intermediate' },
+      { name:'Lat Pulldown',            muscle_group:'back',      equipment:'cable',      difficulty:'beginner' },
+      { name:'Seated Cable Row',        muscle_group:'back',      equipment:'cable',      difficulty:'beginner' },
+      { name:'T-Bar Row',               muscle_group:'back',      equipment:'barbell',    difficulty:'intermediate' },
+      { name:'Face Pulls',              muscle_group:'back',      equipment:'cable',      difficulty:'beginner' },
+      // Legs
+      { name:'Squat',                   muscle_group:'legs',      equipment:'barbell',    difficulty:'intermediate' },
+      { name:'Front Squat',             muscle_group:'legs',      equipment:'barbell',    difficulty:'advanced' },
+      { name:'Romanian Deadlift',       muscle_group:'legs',      equipment:'barbell',    difficulty:'intermediate' },
+      { name:'Leg Press',               muscle_group:'legs',      equipment:'machine',    difficulty:'beginner' },
+      { name:'Hack Squat',              muscle_group:'legs',      equipment:'machine',    difficulty:'intermediate' },
+      { name:'Leg Curl',                muscle_group:'legs',      equipment:'machine',    difficulty:'beginner' },
+      { name:'Leg Extension',           muscle_group:'legs',      equipment:'machine',    difficulty:'beginner' },
+      { name:'Lunges',                  muscle_group:'legs',      equipment:'bodyweight', difficulty:'beginner' },
+      { name:'Bulgarian Split Squat',   muscle_group:'legs',      equipment:'dumbbell',   difficulty:'intermediate' },
+      { name:'Calf Raises',             muscle_group:'legs',      equipment:'bodyweight', difficulty:'beginner' },
+      // Shoulders
+      { name:'Overhead Press',          muscle_group:'shoulders', equipment:'barbell',    difficulty:'intermediate' },
+      { name:'Dumbbell Shoulder Press', muscle_group:'shoulders', equipment:'dumbbell',   difficulty:'beginner' },
+      { name:'Lateral Raises',          muscle_group:'shoulders', equipment:'dumbbell',   difficulty:'beginner' },
+      { name:'Front Raises',            muscle_group:'shoulders', equipment:'dumbbell',   difficulty:'beginner' },
+      { name:'Rear Delt Flyes',         muscle_group:'shoulders', equipment:'dumbbell',   difficulty:'beginner' },
+      { name:'Arnold Press',            muscle_group:'shoulders', equipment:'dumbbell',   difficulty:'intermediate' },
+      // Arms
+      { name:'Barbell Curl',            muscle_group:'arms',      equipment:'barbell',    difficulty:'beginner' },
+      { name:'Dumbbell Curl',           muscle_group:'arms',      equipment:'dumbbell',   difficulty:'beginner' },
+      { name:'Hammer Curl',             muscle_group:'arms',      equipment:'dumbbell',   difficulty:'beginner' },
+      { name:'Preacher Curl',           muscle_group:'arms',      equipment:'barbell',    difficulty:'beginner' },
+      { name:'Cable Curl',              muscle_group:'arms',      equipment:'cable',      difficulty:'beginner' },
+      { name:'Tricep Pushdown',         muscle_group:'arms',      equipment:'cable',      difficulty:'beginner' },
+      { name:'Overhead Tricep Extension',muscle_group:'arms',     equipment:'cable',      difficulty:'beginner' },
+      { name:'Skull Crushers',          muscle_group:'arms',      equipment:'barbell',    difficulty:'intermediate' },
+      { name:'Close-Grip Bench Press',  muscle_group:'arms',      equipment:'barbell',    difficulty:'intermediate' },
+      // Core
+      { name:'Planks',                  muscle_group:'core',      equipment:'bodyweight', difficulty:'beginner' },
+      { name:'Crunches',                muscle_group:'core',      equipment:'bodyweight', difficulty:'beginner' },
+      { name:'Russian Twists',          muscle_group:'core',      equipment:'bodyweight', difficulty:'beginner' },
+      { name:'Leg Raises',              muscle_group:'core',      equipment:'bodyweight', difficulty:'beginner' },
+      { name:'Ab Wheel',                muscle_group:'core',      equipment:'bodyweight', difficulty:'intermediate' },
+      { name:'Cable Crunches',          muscle_group:'core',      equipment:'cable',      difficulty:'intermediate' },
+      { name:'Hanging Leg Raises',      muscle_group:'core',      equipment:'bodyweight', difficulty:'intermediate' },
+    ];
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // PWA + KEYBOARD FIXES
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // Dismiss keyboard when tapping outside the chat input
+  document.addEventListener('touchstart', function(e) {
+    if (!e.target.closest('.chat-input-wrap') &&
+        !e.target.closest('.chat-send')       &&
+        !e.target.closest('.chat-attach')) {
+      chatInput.blur();
+    }
+  }, { passive: true });
+
+  // Flag standalone PWA mode for potential CSS hooks
+  if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+    document.documentElement.classList.add('pwa-standalone');
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────
