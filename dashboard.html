@@ -1398,7 +1398,7 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   const { createClient } = supabase;
-  const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
   let conversationHistory = [];
   let pendingImage = null;
