@@ -1,1642 +1,716 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Nomis — Personal AI OS</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>NOMIS — AI Fitness Assistant</title>
 
   <!-- PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Nomis">
-  <meta name="theme-color" content="#080810">
+  <meta name="apple-mobile-web-app-title" content="NOMIS">
+  <meta name="theme-color" content="#05080f">
   <link rel="apple-touch-icon" href="nomis-icon.svg">
   <link rel="manifest" href="manifest.json">
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<link rel="stylesheet" href="nomis-scifi-redesign.css">
+  
+  <!-- Star Trek HUD CSS -->
+  <link rel="stylesheet" href="nomis-scifi-redesign.css">
 </head>
 <body>
 
-<!-- Auth check -->
+<!-- Auth Check -->
 <script>
   if (sessionStorage.getItem('nomis_auth') !== 'true') {
     window.location.href = 'index.html';
   }
 </script>
 
-<div class="layout">
-
-  <!-- Topbar -->
-  <header class="topbar">
-    <div class="logo">
-      <div class="logo-dot"></div>
-      NOMIS
-    </div>
-    <div class="topbar-right">
-      <div class="topbar-stat"><span>MODULE</span><span>FITNESS v1</span></div>
-      <div class="topbar-stat"><span id="clock">--:--</span></div>
-    </div>
-  </header>
-
-  <!-- Desktop Sidebar -->
-  <nav class="sidebar">
-    <div class="nav-section">
-      <div class="nav-label">Core</div>
-      <div class="nav-item active" onclick="showPage('dashboard', this)">
-        <span class="nav-icon">⬡</span> Dashboard
-      </div>
-    </div>
-    <div class="nav-section">
-      <div class="nav-label">Fitness</div>
-      <div class="nav-item" onclick="showPage('workouts', this)"><span class="nav-icon">◈</span> Workouts</div>
-      <div class="nav-item" onclick="showPage('cardio', this)"><span class="nav-icon">◎</span> Cardio</div>
-      <div class="nav-item" onclick="showPage('nutrition', this)"><span class="nav-icon">◇</span> Nutrition</div>
-      <div class="nav-item" onclick="showPage('sleep', this)"><span class="nav-icon">◉</span> Sleep</div>
-      <div class="nav-item" onclick="showPage('body', this)"><span class="nav-icon">▣</span> Body Stats</div>
-      <div class="nav-item" onclick="showPage('records', this)"><span class="nav-icon">◆</span> Records</div>
-      <div class="nav-item" onclick="showPage('supplements', this)"><span class="nav-icon">⬟</span> Supplements</div>
-      <div class="nav-item" onclick="showPage('peptides', this)"><span class="nav-icon">⬡</span> Peptides</div>
-    </div>
-    <div class="nav-section">
-      <div class="nav-label">Training</div>
-      <div class="nav-item" onclick="showPage('programs', this)"><span class="nav-icon">▦</span> Programs</div>
-      <div class="nav-item" onclick="showPage('exercises', this)"><span class="nav-icon">◎</span> Exercises</div>
-    </div>
-    <div class="nav-section">
-      <div class="nav-label">Modules</div>
-      <div class="nav-item" style="opacity:0.3;cursor:default;"><span class="nav-icon">○</span> Finance</div>
-      <div class="nav-item" style="opacity:0.3;cursor:default;"><span class="nav-icon">○</span> Work</div>
-      <div class="nav-item" style="opacity:0.3;cursor:default;"><span class="nav-icon">○</span> Home</div>
-    </div>
-    <div class="sidebar-bottom">
-      <div class="nomis-status">
-        <div class="logo-dot" style="width:6px;height:6px;"></div>
-        Nomis Core Online
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main -->
-  <main class="main">
-    <div class="page-content">
-
-      <!-- Dashboard -->
-      <div class="page active" id="page-dashboard">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Overview</div>
-            <div class="page-sub">FITNESS MODULE</div>
-          </div>
-          <div class="date-badge" id="date-display">--</div>
-        </div>
-
-        <!-- Active Program Banner -->
-        <div id="dash-program-banner">
-          <div class="empty" style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:14px;padding:16px;">Loading program…</div>
-        </div>
-
-        <!-- Stats -->
-        <div class="stat-grid">
-          <div class="stat-card green">
-            <div class="stat-label">Body Weight</div>
-            <div class="stat-value" id="stat-weight">--<span class="stat-unit">lbs</span></div>
-            <div class="stat-delta flat" id="stat-weight-delta">no data yet</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Last Workout</div>
-            <div class="stat-value" id="stat-workout" style="font-size:1.2rem;padding-top:4px;">--</div>
-            <div class="stat-delta flat" id="stat-workout-delta">no data yet</div>
-          </div>
-          <div class="stat-card amber">
-            <div class="stat-label">Last Sleep</div>
-            <div class="stat-value" id="stat-sleep">--<span class="stat-unit">hrs</span></div>
-            <div class="stat-delta flat" id="stat-sleep-delta">no data yet</div>
-          </div>
-          <div class="stat-card cyan">
-            <div class="stat-label">Calories Today</div>
-            <div class="stat-value" id="stat-calories">--<span class="stat-unit">kcal</span></div>
-            <div class="stat-delta flat" id="stat-calories-delta">no data yet</div>
-          </div>
-        </div>
-
-        <!-- Today's Workout -->
-        <div class="panel" style="margin-bottom:14px;">
-          <div class="panel-header">
-            <div class="panel-title">Today's Workout</div>
-            <span id="log-workout-btn" class="panel-action" style="display:none;cursor:pointer;" onclick="openLogModal()">Log Workout →</span>
-          </div>
-          <div class="panel-body" id="todays-workout-body">
-            <div class="empty">Loading…</div>
-          </div>
-        </div>
-
-        <!-- Workout History + Peptides -->
-        <div class="content-grid">
-          <div class="panel">
-            <div class="panel-header"><div class="panel-title">Workout History</div></div>
-            <div style="padding:6px 16px;" id="workout-history">
-              <div class="empty">No workouts yet.</div>
-            </div>
-          </div>
-          <div class="panel">
-            <div class="panel-header"><div class="panel-title">Active Peptide Cycles</div></div>
-            <div class="panel-body" style="padding:6px 16px;" id="active-peptides">
-              <div class="empty">No active cycles.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Workouts -->
-      <div class="page" id="page-workouts">
-        <div class="page-header">
-          <div><div class="page-title">Workouts</div><div class="page-sub">TRAINING LOG</div></div>
-        </div>
-        <div class="panel">
-          <div class="panel-header"><div class="panel-title">All Sessions</div></div>
-          <div style="padding:6px 16px;" id="workouts-list">
-            <div class="empty">No sessions yet.<br>Tell Nomis what you trained.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Cardio -->
-      <div class="page" id="page-cardio">
-        <div class="page-header">
-          <div><div class="page-title">Cardio</div><div class="page-sub">WALKS · RUNS · ACTIVITY</div></div>
-        </div>
-        <div class="panel">
-          <div class="panel-header"><div class="panel-title">Activity Log</div></div>
-          <div style="padding:6px 16px;" id="cardio-list">
-            <div class="empty">No cardio logged yet.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Nutrition -->
-      <div class="page" id="page-nutrition">
-        <div class="page-header">
-          <div><div class="page-title">Nutrition</div><div class="page-sub">CALORIES · MACROS</div></div>
-        </div>
-        <div class="panel">
-          <div class="panel-header"><div class="panel-title">Today's Log</div></div>
-          <div style="padding:6px 16px;" id="nutrition-list">
-            <div class="empty">No meals logged yet.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sleep -->
-      <div class="page" id="page-sleep">
-        <div class="page-header">
-          <div><div class="page-title">Sleep</div><div class="page-sub">DURATION · QUALITY</div></div>
-        </div>
-        <div class="panel">
-          <div class="panel-header"><div class="panel-title">Sleep Log</div></div>
-          <div style="padding:6px 16px;" id="sleep-list">
-            <div class="empty">No sleep logged yet.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Body Stats -->
-      <div class="page" id="page-body">
-        <div class="page-header">
-          <div><div class="page-title">Body Stats</div><div class="page-sub">WEIGHT · COMPOSITION</div></div>
-        </div>
-        <div class="panel">
-          <div class="panel-header"><div class="panel-title">Measurements</div></div>
-          <div style="padding:6px 16px;" id="body-list">
-            <div class="empty">No stats logged yet.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Records -->
-      <div class="page" id="page-records">
-        <div class="page-header">
-          <div><div class="page-title">Records</div><div class="page-sub">PERSONAL BESTS</div></div>
-        </div>
-        <div class="panel">
-          <div class="panel-header"><div class="panel-title">All PRs</div></div>
-          <div style="padding:6px 16px;" id="records-list">
-            <div class="empty">No records yet.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Supplements -->
-      <div class="page" id="page-supplements">
-        <div class="page-header">
-          <div><div class="page-title">Supplements</div><div class="page-sub">DAILY STACK</div></div>
-        </div>
-        <div class="panel">
-          <div class="panel-header"><div class="panel-title">Active Stack</div></div>
-          <div style="padding:6px 16px;" id="supplements-list">
-            <div class="empty">No supplements added yet.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Peptides -->
-      <div class="page" id="page-peptides">
-        <div class="page-header">
-          <div><div class="page-title">Peptides</div><div class="page-sub">CYCLE TRACKING</div></div>
-        </div>
-        <div class="panel">
-          <div class="panel-header"><div class="panel-title">Cycles</div></div>
-          <div style="padding:6px 16px;" id="peptides-list">
-            <div class="empty">No cycles logged yet.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Programs -->
-      <div class="page" id="page-programs">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Programs</div>
-            <div class="page-sub">WORKOUT PLANS</div>
-          </div>
-          <button class="btn-sm" onclick="showProgramBuilder()">+ New Program</button>
-        </div>
-
-        <!-- Active program banner -->
-        <div id="active-prog-section"></div>
-
-        <!-- Program builder (hidden by default) -->
-        <div id="program-builder" style="display:none;margin-bottom:14px;">
-          <div class="panel">
-            <div class="panel-header">
-              <div class="panel-title">New Program</div>
-              <span class="panel-action" onclick="hideProgramBuilder()">✕ Cancel</span>
-            </div>
-            <div class="panel-body">
-              <div class="field-group">
-                <label class="field-lbl">Program Name</label>
-                <input class="field-in" id="prog-name" placeholder="e.g. Push / Pull / Legs" />
-              </div>
-              <div class="field-group">
-                <label class="field-lbl">Description <span style="opacity:0.35;font-weight:300;font-size:0.58rem;">(optional)</span></label>
-                <input class="field-in" id="prog-desc" placeholder="Brief description..." />
-              </div>
-              <div style="margin-bottom:16px;">
-                <div class="field-lbl" style="margin-bottom:10px;">Training Days</div>
-                <div id="prog-days-container"></div>
-                <button class="btn-outline" onclick="addBuilderDay()" style="width:100%;margin-top:8px;justify-content:center;display:flex;gap:6px;">
-                  + Add Training Day
-                </button>
-              </div>
-              <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:12px;border-top:1px solid var(--border);">
-                <button class="btn-outline" onclick="hideProgramBuilder()">Cancel</button>
-                <button class="btn-primary" onclick="saveNewProgram()">Save Program</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- All programs -->
-        <div class="panel">
-          <div class="panel-header"><div class="panel-title">All Programs</div></div>
-          <div id="all-programs-list" style="padding:6px 16px;">
-            <div class="empty">No programs yet.<br>Create your first workout program above.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Exercises -->
-      <div class="page" id="page-exercises">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Exercises</div>
-            <div class="page-sub">EXERCISE LIBRARY</div>
-          </div>
-          <button class="btn-sm" id="seed-btn" onclick="checkAndSeedExercises()" style="display:none;">Seed Library</button>
-        </div>
-
-        <div class="exercise-filters">
-          <input class="field-in" id="ex-search" placeholder="Search exercises…" oninput="filterAndRenderExercises()" />
-          <div class="filter-row">
-            <select class="field-sel" id="ex-muscle" onchange="filterAndRenderExercises()">
-              <option value="">All Muscles</option>
-              <option value="chest">Chest</option>
-              <option value="back">Back</option>
-              <option value="legs">Legs</option>
-              <option value="shoulders">Shoulders</option>
-              <option value="arms">Arms</option>
-              <option value="core">Core</option>
-            </select>
-            <select class="field-sel" id="ex-equipment" onchange="filterAndRenderExercises()">
-              <option value="">All Equipment</option>
-              <option value="barbell">Barbell</option>
-              <option value="dumbbell">Dumbbell</option>
-              <option value="cable">Cable</option>
-              <option value="machine">Machine</option>
-              <option value="bodyweight">Bodyweight</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="exercise-grid" id="exercise-grid">
-          <div class="empty" style="grid-column:1/-1;">Loading exercises…</div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Mobile bottom nav -->
-    <nav class="mobile-nav">
-      <div class="mobile-nav-item active" id="mobile-nav-dashboard" onclick="showPageMobile('dashboard', this)">
-        <span class="mobile-nav-icon">⬡</span>
-        <span class="mobile-nav-label">HOME</span>
-      </div>
-      <div class="mobile-nav-item" id="mobile-nav-workouts" onclick="showPageMobile('workouts', this)">
-        <span class="mobile-nav-icon">◈</span>
-        <span class="mobile-nav-label">TRAIN</span>
-      </div>
-      <div class="mobile-nav-item" id="mobile-nav-nutrition" onclick="showPageMobile('nutrition', this)">
-        <span class="mobile-nav-icon">◇</span>
-        <span class="mobile-nav-label">FOOD</span>
-      </div>
-      <div class="mobile-nav-item" id="mobile-nav-sleep" onclick="showPageMobile('sleep', this)">
-        <span class="mobile-nav-icon">◉</span>
-        <span class="mobile-nav-label">SLEEP</span>
-      </div>
-      <div class="mobile-nav-item" id="mobile-nav-more" onclick="toggleMore()">
-        <span class="mobile-nav-icon">⋯</span>
-        <span class="mobile-nav-label">MORE</span>
-      </div>
-    </nav>
-
-    <!-- Chat bar -->
-    <div class="chat-bar">
-      <div class="chat-messages" id="chat-messages"></div>
-      <div id="image-preview-wrap"></div>
-      <div class="chat-input-row">
-        <div class="chat-input-wrap">
-          <textarea
-            class="chat-input"
-            id="chat-input"
-            placeholder="Tell Nomis..."
-            rows="1"
-          ></textarea>
-          <button class="chat-attach" onclick="triggerImageUpload()" title="Attach image">📎</button>
-        </div>
-        <button class="chat-send" id="send-btn" onclick="sendMessage()">→</button>
-      </div>
-      <input type="file" id="image-input" accept="image/*" style="display:none" />
-    </div>
-  </main>
-</div>
-
-<!-- More menu overlay -->
-<div class="more-overlay" id="more-overlay" onclick="closeMore()"></div>
-<div class="more-menu" id="more-menu">
-  <div class="more-menu-grid">
-    <div class="more-menu-item" onclick="showPageMore('cardio')">
-      <span>◎</span><span>CARDIO</span>
-    </div>
-    <div class="more-menu-item" onclick="showPageMore('body')">
-      <span>▣</span><span>BODY</span>
-    </div>
-    <div class="more-menu-item" onclick="showPageMore('records')">
-      <span>◆</span><span>RECORDS</span>
-    </div>
-    <div class="more-menu-item" onclick="showPageMore('supplements')">
-      <span>⬟</span><span>SUPPS</span>
-    </div>
-    <div class="more-menu-item" onclick="showPageMore('peptides')">
-      <span>⬡</span><span>PEPTIDES</span>
-    </div>
-    <div class="more-menu-item" onclick="showPageMore('programs')">
-      <span>▦</span><span>PROGRAMS</span>
-    </div>
-    <div class="more-menu-item" onclick="showPageMore('exercises')">
-      <span>◎</span><span>EXERCISES</span>
+<!-- Sidebar Navigation -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">NOMIS</div>
+  </div>
+  
+  <div class="nav-section">
+    <div class="nav-label">Core</div>
+    <div class="nav-item active" data-page="dashboard">
+      <span>⬡</span> Dashboard
     </div>
   </div>
-</div>
-
-<!-- Exercise Detail Modal -->
-<div class="modal-overlay" id="exercise-detail-modal" onclick="if(event.target===this)closeExerciseDetailModal()">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title" id="ex-detail-title">Exercise</div>
-      <button class="modal-close" onclick="closeExerciseDetailModal()">✕</button>
+  
+  <div class="nav-section">
+    <div class="nav-label">Training</div>
+    <div class="nav-item" data-page="programs">
+      <span>▦</span> Programs
     </div>
-    <div class="modal-body" id="ex-detail-body"></div>
-  </div>
-</div>
-
-<!-- Exercise Picker Modal (from program builder) -->
-<div class="modal-overlay" id="exercise-picker-modal" onclick="if(event.target===this)closeExercisePicker()">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title">Add Exercise</div>
-      <button class="modal-close" onclick="closeExercisePicker()">✕</button>
-    </div>
-    <div class="modal-body">
-      <input class="field-in" id="picker-search" placeholder="Search exercises…" oninput="filterPicker()" style="margin-bottom:10px;" />
-      <select class="field-sel" id="picker-muscle" onchange="filterPicker()" style="width:100%;margin-bottom:12px;">
-        <option value="">All Muscles</option>
-        <option value="chest">Chest</option>
-        <option value="back">Back</option>
-        <option value="legs">Legs</option>
-        <option value="shoulders">Shoulders</option>
-        <option value="arms">Arms</option>
-        <option value="core">Core</option>
-      </select>
-      <div class="ex-picker-grid" id="picker-grid"></div>
+    <div class="nav-item" data-page="workouts">
+      <span>◈</span> Workouts
     </div>
   </div>
-</div>
+  
+  <div class="status-indicator">
+    <div class="status-dot"></div>
+    Nomis Core Online
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+  
+  <!-- DASHBOARD PAGE -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Mission Control</div>
+        <div class="page-subtitle">Fitness Command Center</div>
+      </div>
+    </div>
+
+    <!-- Active Program Banner -->
+    <div id="program-banner-container">
+      <div class="card" style="text-align:center;color:var(--text-secondary);">
+        <div style="font-size:0.7rem;">Loading program data...</div>
+      </div>
+    </div>
+
+    <!-- Today's Workout -->
+    <div class="card">
+      <h3 style="font-size:1.1rem;margin-bottom:16px;color:var(--cyber-blue);">Today's Mission</h3>
+      <div id="todays-workout">
+        <div style="text-align:center;color:var(--text-secondary);padding:20px 0;">
+          <div style="font-size:0.7rem;">Analyzing workout plan...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Log Workout Button (Hidden until workout loads) -->
+    <button class="btn btn-primary" id="log-workout-btn" style="display:none;width:100%;margin-bottom:20px;" onclick="openLogModal()">
+      Log Today's Workout
+    </button>
+
+    <!-- Chat Interface -->
+    <div class="card">
+      <h3 style="font-size:1.1rem;margin-bottom:16px;color:var(--cyber-blue);">AI Assistant</h3>
+      <div id="chat-messages" style="max-height:300px;overflow-y:auto;margin-bottom:16px;"></div>
+      <div style="display:flex;gap:10px;">
+        <input type="text" class="form-input" id="chat-input" placeholder="Ask Nomis anything..." style="flex:1;" onkeydown="if(event.key==='Enter') sendMessage()">
+        <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRAMS PAGE -->
+  <div class="page" id="page-programs">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Training Programs</div>
+        <div class="page-subtitle">Workout Protocols</div>
+      </div>
+    </div>
+
+    <div id="programs-list">
+      <div class="card" style="text-align:center;color:var(--text-secondary);">
+        <div style="font-size:0.7rem;">Loading programs...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKOUTS PAGE -->
+  <div class="page" id="page-workouts">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Training Log</div>
+        <div class="page-subtitle">Session History</div>
+      </div>
+    </div>
+
+    <div id="workouts-list">
+      <div class="card" style="text-align:center;color:var(--text-secondary);">
+        <div style="font-size:0.7rem;">Loading workouts...</div>
+      </div>
+    </div>
+  </div>
+
+</main>
 
 <!-- Log Workout Modal -->
-<div class="modal-overlay" id="log-workout-modal" onclick="if(event.target===this)closeLogModal()">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title">Log Workout</div>
-      <button class="modal-close" onclick="closeLogModal()">✕</button>
+<div class="modal" id="log-modal">
+  <div class="modal-content">
+    <h2 style="font-size:1.3rem;margin-bottom:20px;background:var(--grad-cyber);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Log Workout</h2>
+    
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input type="text" class="form-input" id="log-title" placeholder="e.g., Push Day">
     </div>
-    <div class="modal-body">
-      <div class="field-group">
-        <label class="field-lbl">Title</label>
-        <input class="field-in" id="log-title" placeholder="e.g. Push Day" />
-      </div>
-      <div class="field-group">
-        <label class="field-lbl">Muscle Group</label>
-        <input class="field-in" id="log-muscle" placeholder="chest, shoulders, triceps…" />
-      </div>
-      <div class="field-group">
-        <label class="field-lbl">Duration (minutes)</label>
-        <input class="field-in" id="log-duration" type="number" placeholder="60" min="1" max="300" />
-      </div>
-      <div class="field-group">
-        <label class="field-lbl">How'd it feel?</label>
-        <select class="field-sel" id="log-feeling" style="width:100%;">
-          <option value="">Select…</option>
-          <option value="great">🔥 Great</option>
-          <option value="good">💪 Good</option>
-          <option value="ok">😐 OK</option>
-          <option value="rough">😤 Rough</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label class="field-lbl">Notes <span style="opacity:0.4;font-weight:300;font-size:0.58rem;">(optional)</span></label>
-        <textarea class="field-in" id="log-notes" placeholder="PRs hit, how you felt, what to adjust next time…" rows="3" style="resize:vertical;"></textarea>
-      </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:8px;border-top:1px solid var(--border);">
-        <button class="btn-outline" onclick="closeLogModal()">Cancel</button>
-        <button class="btn-primary" id="log-submit-btn" onclick="logWorkout()">Log Workout</button>
-      </div>
+    
+    <div class="form-group">
+      <label class="form-label">Muscle Group</label>
+      <input type="text" class="form-input" id="log-muscle" placeholder="chest, shoulders, triceps">
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Duration (minutes)</label>
+      <input type="number" class="form-input" id="log-duration" placeholder="60">
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Feeling</label>
+      <select class="form-select" id="log-feeling">
+        <option value="">Select...</option>
+        <option value="great">🔥 Great</option>
+        <option value="good">💪 Good</option>
+        <option value="ok">😐 OK</option>
+        <option value="rough">😤 Rough</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-textarea" id="log-notes" placeholder="How did it go?" rows="3"></textarea>
+    </div>
+    
+    <div style="display:flex;gap:10px;margin-top:24px;">
+      <button class="btn btn-secondary" onclick="closeLogModal()" style="flex:1;">Cancel</button>
+      <button class="btn btn-primary" id="log-submit-btn" onclick="submitWorkout()" style="flex:1;">Log Workout</button>
     </div>
   </div>
 </div>
 
 <script>
-  // ── Config — REPLACE WITH YOUR VALUES ────────────────────────────────────
-  const MIDDLEWARE_URL = 'https://aware-clarity-production.up.railway.app';
-  const NOMIS_KEY      = 'nomis-core-a7x9k2m4p8q3123ardsfasdfcvbzdfd';
-  const SUPABASE_URL   = 'https://heiuemfwvyxibkywehrb.supabase.co';
-  const SUPABASE_ANON  = 'sb_publishable_s97u3xJKa_mv3RKvPKEOtQ_Wz4Zg62X';
-  // ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════════════
 
-  const { createClient } = supabase;
-  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const MIDDLEWARE_URL = 'https://aware-clarity-production.up.railway.app';
+const NOMIS_KEY = 'nomis-core-a7x9k2m4p8q3123ardsfasdfcvbzdfd';
+const SUPABASE_URL = 'https://heiuemfwvyxibkywehrb.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_s97u3xJKa_mv3RKvPKEOtQ_Wz4Zg62X';
 
-  let conversationHistory = [];
-  let pendingImage = null;
+const { createClient } = supabase;
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  // ── Clock + Date ──────────────────────────────────────────────────────────
-  function updateClock() {
-    document.getElementById('clock').textContent =
-      new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-  }
-  updateClock();
-  setInterval(updateClock, 1000);
-  document.getElementById('date-display').textContent =
-    new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
+let activeProgram = null;
+let todayPlan = null;
+let todayExercises = [];
+let conversationHistory = [];
 
-  // ── Navigation ────────────────────────────────────────────────────────────
-  function showPage(id, el) {
+// ═══════════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const page = item.dataset.page;
+    
+    // Update nav active state
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    
+    // Update page visibility
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('page-' + id).classList.add('active');
-    if (el) el.classList.add('active');
-    loadPageData(id);
-  }
-
-  function showPageMobile(id, el) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('page-' + id).classList.add('active');
-    if (el) el.classList.add('active');
-    loadPageData(id);
-  }
-
-  function showPageMore(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
-    document.querySelectorAll('.more-menu-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('page-' + id).classList.add('active');
-    document.getElementById('mobile-nav-more').classList.add('active');
-    const menuItem = document.querySelector(`.more-menu-item[onclick="showPageMore('${id}')"]`);
-    if (menuItem) menuItem.classList.add('active');
-    closeMore();
-    loadPageData(id);
-  }
-
-  function toggleMore() {
-    document.getElementById('more-menu').classList.toggle('open');
-    document.getElementById('more-overlay').classList.toggle('open');
-  }
-
-  function closeMore() {
-    document.getElementById('more-menu').classList.remove('open');
-    document.getElementById('more-overlay').classList.remove('open');
-  }
-
-  // ── Load data ─────────────────────────────────────────────────────────────
-  async function loadDashboard() {
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const [bsRes, slRes, woRes, nuRes, pepRes] = await Promise.all([
-        db.from('body_stats').select('*').order('date', { ascending: false }).limit(1),
-        db.from('sleep').select('*').order('date', { ascending: false }).limit(1),
-        db.from('workouts').select('*').order('date', { ascending: false }).limit(5),
-        db.from('nutrition').select('calories').eq('date', today),
-        db.from('peptide_cycles').select('*').eq('status', 'active'),
-      ]);
-
-      if (bsRes.data?.length) {
-        document.getElementById('stat-weight').innerHTML = `${bsRes.data[0].weight_lbs}<span class="stat-unit">lbs</span>`;
-        document.getElementById('stat-weight-delta').textContent = bsRes.data[0].date;
-      }
-      if (slRes.data?.length) {
-        document.getElementById('stat-sleep').innerHTML = `${slRes.data[0].duration_hrs}<span class="stat-unit">hrs</span>`;
-        document.getElementById('stat-sleep-delta').textContent = slRes.data[0].quality || slRes.data[0].date;
-      }
-      if (nuRes.data?.length) {
-        const total = nuRes.data.reduce((s, r) => s + (r.calories || 0), 0);
-        document.getElementById('stat-calories').innerHTML = `${total.toLocaleString()}<span class="stat-unit">kcal</span>`;
-        document.getElementById('stat-calories-delta').textContent = `${nuRes.data.length} meals`;
-      }
-
-      renderWorkoutHistory(woRes.data);
-
-      const pepEl = document.getElementById('active-peptides');
-      if (pepRes.data?.length) {
-        pepEl.innerHTML = pepRes.data.map(p => {
-          const d = p.start_date ? Math.floor((new Date() - new Date(p.start_date)) / 86400000) : 0;
-          return `<div class="cycle-item">
-            <div>
-              <div class="cycle-name">${p.stack_name}</div>
-              <div class="cycle-dose">Day ${d}${p.cycle_days ? '/'+p.cycle_days : ''}</div>
-            </div>
-            <div class="cycle-status active">ON</div>
-          </div>`;
-        }).join('');
-      }
-
-      await loadActiveProgramForDashboard();
-    } catch(e) { console.error('Dashboard load error:', e); }
-  }
-
-  async function loadPageData(page) {
-    if (page === 'dashboard') { loadDashboard(); return; }
-    if (page === 'programs')  { loadProgramsPage(); return; }
-    if (page === 'exercises') { loadExercisesPage(); return; }
-
-    const configs = {
-      workouts:    { table: 'workouts',       el: 'workouts-list',    render: renderWorkout },
-      cardio:      { table: 'cardio',          el: 'cardio-list',      render: renderCardio },
-      nutrition:   { table: 'nutrition',       el: 'nutrition-list',   render: renderNutrition },
-      sleep:       { table: 'sleep',           el: 'sleep-list',       render: renderSleep },
-      body:        { table: 'body_stats',      el: 'body-list',        render: renderBodyStat },
-      records:     { table: 'personal_records',el: 'records-list',     render: renderRecord },
-      supplements: { table: 'supplements',     el: 'supplements-list', render: renderSupplement },
-      peptides:    { table: 'peptide_cycles',  el: 'peptides-list',    render: renderPeptide },
-    };
-
-    const cfg = configs[page];
-    if (!cfg) return;
-
-    try {
-      const { data } = await db.from(cfg.table).select('*').order('created_at', { ascending: false }).limit(50);
-      const el = document.getElementById(cfg.el);
-      if (data?.length) el.innerHTML = data.map(cfg.render).join('');
-    } catch(e) { console.error('Page load error:', e); }
-  }
-
-  // ── Render functions ──────────────────────────────────────────────────────
-  function renderWorkout(w) {
-    return `<div class="log-item">
-      <div class="log-left">
-        <div class="log-icon">🏋️</div>
-        <div>
-          <div class="log-name">${w.title || w.muscle_group || 'Workout'}</div>
-          <div class="log-meta">${w.date}${w.muscle_group ? ' · '+w.muscle_group : ''}${w.feeling ? ' · '+w.feeling : ''}</div>
-          ${w.description ? `<div class="log-meta" style="color:var(--text);margin-top:3px;">${w.description}</div>` : ''}
-        </div>
-      </div>
-      ${w.duration_min ? `<div class="log-right"><div class="log-value">${w.duration_min}m</div></div>` : ''}
-    </div>`;
-  }
-
-  function renderCardio(c) {
-    return `<div class="log-item">
-      <div class="log-left">
-        <div class="log-icon">🚶</div>
-        <div>
-          <div class="log-name">${c.activity}</div>
-          <div class="log-meta">${c.date}${c.duration_min ? ' · '+c.duration_min+'min' : ''}${c.distance_miles ? ' · '+c.distance_miles+'mi' : ''}</div>
-          ${c.avg_heart_rate ? `<div class="log-meta">HR: ${c.avg_heart_rate}bpm avg</div>` : ''}
-        </div>
-      </div>
-      ${c.pace_min_mile ? `<div class="log-right"><div class="log-value">${c.pace_min_mile}/mi</div></div>` : ''}
-    </div>`;
-  }
-
-  function renderNutrition(n) {
-    return `<div class="log-item">
-      <div class="log-left">
-        <div class="log-icon">🍽️</div>
-        <div>
-          <div class="log-name">${n.description}</div>
-          <div class="log-meta">${n.date}${n.meal ? ' · '+n.meal : ''}</div>
-        </div>
-      </div>
-      <div class="log-right">
-        ${n.calories ? `<div class="log-value">${n.calories}kcal</div>` : ''}
-        ${n.protein_g ? `<div class="log-meta">${n.protein_g}g protein</div>` : ''}
-      </div>
-    </div>`;
-  }
-
-  function renderSleep(s) {
-    const color = s.duration_hrs >= 8 ? 'var(--green)' : s.duration_hrs >= 7 ? 'var(--amber)' : 'var(--red)';
-    return `<div class="log-item">
-      <div class="log-left">
-        <div class="log-icon">🌙</div>
-        <div>
-          <div class="log-name">${s.date}</div>
-          <div class="log-meta">${s.quality || ''}${s.notes ? ' · '+s.notes : ''}</div>
-        </div>
-      </div>
-      <div class="log-right"><div class="log-value" style="color:${color}">${s.duration_hrs}h</div></div>
-    </div>`;
-  }
-
-  function renderBodyStat(b) {
-    return `<div class="log-item">
-      <div class="log-left">
-        <div class="log-icon">📊</div>
-        <div>
-          <div class="log-name">${b.date}</div>
-          ${b.body_fat_pct ? `<div class="log-meta">${b.body_fat_pct}% body fat</div>` : ''}
-        </div>
-      </div>
-      ${b.weight_lbs ? `<div class="log-right"><div class="log-value">${b.weight_lbs} lbs</div></div>` : ''}
-    </div>`;
-  }
-
-  function renderRecord(r) {
-    return `<div class="log-item">
-      <div class="log-left">
-        <div class="log-icon">◆</div>
-        <div>
-          <div class="log-name">${r.metric}</div>
-          <div class="log-meta">${r.category} · ${r.date}</div>
-        </div>
-      </div>
-      <div class="log-right">
-        <div class="log-value">${r.value} ${r.unit || ''}</div>
-        <span class="pr-badge">★ PR</span>
-      </div>
-    </div>`;
-  }
-
-  function renderSupplement(s) {
-    return `<div class="log-item">
-      <div class="log-left">
-        <div class="log-icon">💊</div>
-        <div>
-          <div class="log-name">${s.name}</div>
-          <div class="log-meta">${s.dose || ''}${s.frequency ? ' · '+s.frequency : ''}</div>
-        </div>
-      </div>
-      <div class="log-right"><div class="cycle-status ${s.active ? 'active' : 'off'}">${s.active ? 'ON' : 'OFF'}</div></div>
-    </div>`;
-  }
-
-  function renderPeptide(p) {
-    const d = p.start_date ? Math.floor((new Date() - new Date(p.start_date)) / 86400000) : 0;
-    return `<div class="cycle-item">
-      <div>
-        <div class="cycle-name">${p.stack_name}</div>
-        <div class="cycle-dose">${p.dose_details || ''}</div>
-        <div class="cycle-dose">Started ${p.start_date} · Day ${d}</div>
-      </div>
-      <div class="cycle-status ${p.status === 'active' ? 'active' : 'off'}">${p.status.toUpperCase()}</div>
-    </div>`;
-  }
-
-  // ── Chat ──────────────────────────────────────────────────────────────────
-  const chatInput = document.getElementById('chat-input');
-
-  chatInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    document.getElementById('page-' + page).classList.add('active');
+    
+    // Load page data
+    loadPageData(page);
   });
+});
 
-  chatInput.addEventListener('input', () => {
-    chatInput.style.height = 'auto';
-    chatInput.style.height = Math.min(chatInput.scrollHeight, 80) + 'px';
-  });
+async function loadPageData(page) {
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'programs') loadPrograms();
+  if (page === 'workouts') loadWorkouts();
+}
 
-  document.getElementById('image-input').addEventListener('change', handleImageSelect);
+// ═══════════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════
 
-  function triggerImageUpload() {
-    document.getElementById('image-input').click();
-  }
+async function loadDashboard() {
+  await loadActiveProgram();
+  await loadTodaysWorkout();
+}
 
-  function handleImageSelect(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      pendingImage = { data: e.target.result.split(',')[1], media_type: file.type, name: file.name };
-      document.getElementById('image-preview-wrap').innerHTML = `
-        <div class="chat-image-preview">
-          <img src="${e.target.result}" />
-          <span>${file.name}</span>
-          <button class="chat-image-remove" onclick="removeImage()">✕</button>
+async function loadActiveProgram() {
+  try {
+    const { data: programs } = await db
+      .from('programs')
+      .select('*')
+      .eq('active', true)
+      .limit(1);
+    
+    const container = document.getElementById('program-banner-container');
+    
+    if (!programs || programs.length === 0) {
+      container.innerHTML = `
+        <div class="card" style="text-align:center;">
+          <div style="color:var(--text-secondary);margin-bottom:8px;">No active program</div>
+          <button class="btn btn-primary" onclick="navigateTo('programs')">Create Program</button>
         </div>`;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function removeImage() {
-    pendingImage = null;
-    document.getElementById('image-preview-wrap').innerHTML = '';
-    document.getElementById('image-input').value = '';
-  }
-
-  function addMessage(role, text, loggedData) {
-    const container = document.getElementById('chat-messages');
-    const isNomis = role === 'nomis';
-    const div = document.createElement('div');
-    div.className = `chat-msg ${isNomis ? 'nomis' : 'user'}`;
-    div.innerHTML = `
-      <div class="chat-avatar">${isNomis ? 'N' : 'S'}</div>
-      <div>
-        <div class="chat-bubble">${text}</div>
-        ${loggedData ? `<div class="chat-logged">✓ logged to ${loggedData.action?.replace('log_','') || 'database'}</div>` : ''}
-      </div>`;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-  }
-
-  function addTyping() {
-    const container = document.getElementById('chat-messages');
-    const div = document.createElement('div');
-    div.className = 'chat-msg nomis';
-    div.id = 'typing-msg';
-    div.innerHTML = `
-      <div class="chat-avatar">N</div>
-      <div class="chat-bubble" style="background:var(--bg3);border:1px solid var(--border);">
-        <div class="typing-indicator">
-          <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
-        </div>
-      </div>`;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-  }
-
-  function removeTyping() {
-    const el = document.getElementById('typing-msg');
-    if (el) el.remove();
-  }
-
-  async function sendMessage() {
-    const text = chatInput.value.trim();
-    if (!text && !pendingImage) return;
-
-    addMessage('user', text || '📎 Image attached');
-    chatInput.value = '';
-    chatInput.style.height = 'auto';
-    document.getElementById('send-btn').disabled = true;
-
-    const imgToSend = pendingImage;
-    removeImage();
-    addTyping();
-
-    try {
-      const body = { conversation_history: conversationHistory };
-      if (text) body.message = text;
-      if (imgToSend) body.image = imgToSend;
-
-      const res = await fetch(`${MIDDLEWARE_URL}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-nomis-key': NOMIS_KEY },
-        body: JSON.stringify(body)
-      });
-
-      const data = await res.json();
-      removeTyping();
-
-      if (!data.success) { addMessage('nomis', `Error: ${data.error}`); return; }
-
-      conversationHistory.push({ role: 'user', content: text || 'Image provided' });
-      conversationHistory.push({ role: 'assistant', content: data.response });
-      if (conversationHistory.length > 20) conversationHistory = conversationHistory.slice(-20);
-
-      addMessage('nomis', data.response, data.parsed_data);
-
-      if (data.parsed_data) {
-        await writeToSupabase(data.parsed_data);
-        loadDashboard();
-      }
-
-    } catch (err) {
-      removeTyping();
-      addMessage('nomis', `Connection error: ${err.message}`);
-    } finally {
-      document.getElementById('send-btn').disabled = false;
-      chatInput.focus();
+      return;
     }
+    
+    activeProgram = programs[0];
+    
+    container.innerHTML = `
+      <div class="program-banner">
+        <div>
+          <div class="program-banner-label">▲ Active Protocol</div>
+          <div class="program-banner-name">${activeProgram.name}</div>
+          ${activeProgram.description ? `<div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-secondary);margin-top:4px;">${activeProgram.description}</div>` : ''}
+        </div>
+        <button class="btn btn-secondary" onclick="navigateTo('programs')">Manage</button>
+      </div>`;
+    
+  } catch (e) {
+    console.error('Load program error:', e);
   }
+}
 
-  async function writeToSupabase(parsed) {
-    const { action, data } = parsed;
-    try {
-      switch (action) {
-        case 'log_workout':
-          await db.from('workouts').insert({
-            date: data.date, muscle_group: data.muscle_group, title: data.title,
-            description: data.description, feeling: data.feeling, duration_min: data.duration_min
-          });
-          break;
-        case 'log_cardio':
-          await db.from('cardio').insert({
-            date: data.date, activity: data.activity, duration_min: data.duration_min,
-            distance_miles: data.distance_miles, pace_min_mile: data.pace_min_mile,
-            avg_heart_rate: data.avg_heart_rate, max_heart_rate: data.max_heart_rate,
-            calories_burned: data.calories_burned, notes: data.notes
-          });
-          break;
-        case 'log_sleep':
-          await db.from('sleep').insert({
-            date: data.date, duration_hrs: data.duration_hours, quality: data.quality, notes: data.notes
-          });
-          break;
-        case 'log_nutrition':
-          await db.from('nutrition').insert({
-            date: data.date, meal: data.meal, description: data.description,
-            calories: data.calories, protein_g: data.protein,
-            sodium_mg: data.sodium_mg, potassium_mg: data.potassium_mg, notes: data.notes
-          });
-          break;
-        case 'log_body_stats':
-          await db.from('body_stats').insert({
-            date: data.date, weight_lbs: data.weight_lbs, body_fat_pct: data.body_fat_pct, notes: data.notes
-          });
-          break;
-        case 'log_peptide_cycle':
-          await db.from('peptide_cycles').insert({
-            stack_name: data.stack_name, start_date: data.start_date, cycle_days: data.cycle_days,
-            dose_details: data.dose_details, status: data.status, notes: data.notes
-          });
-          break;
-      }
-    } catch (err) { console.error('Supabase write error:', err); }
+async function loadTodaysWorkout() {
+  if (!activeProgram) {
+    document.getElementById('todays-workout').innerHTML = `
+      <div style="text-align:center;color:var(--text-secondary);padding:20px 0;">
+        No active program selected
+      </div>`;
+    return;
   }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // PROGRAMS MODULE
-  // ═══════════════════════════════════════════════════════════════════════
-
-  let builderDays = [];          // [{ day_of_week, muscle_group, exercises: [...] }]
-  let builderActiveDayIndex = null;
-
-  const DAYS_OF_WEEK   = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-  const MUSCLE_GROUPS  = ['chest','back','legs','shoulders','arms','core','full body'];
-
-  async function loadProgramsPage() {
-    await loadAllPrograms();
+  
+  try {
+    const { data: plans } = await db
+      .from('workout_plans')
+      .select('*')
+      .eq('program_id', activeProgram.id);
+    
+    if (!plans || plans.length === 0) {
+      document.getElementById('todays-workout').innerHTML = `
+        <div style="text-align:center;color:var(--text-secondary);padding:20px 0;">
+          No workout plans in this program
+        </div>`;
+      return;
+    }
+    
+    todayPlan = getTodaysPlan(plans);
+    
+    if (!todayPlan) {
+      document.getElementById('todays-workout').innerHTML = `
+        <div style="text-align:center;padding:30px 0;">
+          <div style="font-size:2rem;margin-bottom:12px;">🛋️</div>
+          <div style="font-weight:700;font-size:1.1rem;margin-bottom:6px;">Rest Day</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-secondary);">Recovery protocol active</div>
+        </div>`;
+      document.getElementById('log-workout-btn').style.display = 'none';
+      return;
+    }
+    
+    // Load exercises for today's plan
+    const { data: exercises } = await db
+      .from('workout_plan_exercises')
+      .select('*, exercises(*)')
+      .eq('plan_id', todayPlan.id)
+      .order('order_index');
+    
+    todayExercises = exercises || [];
+    
+    renderTodaysWorkout();
+    
+  } catch (e) {
+    console.error('Load workout error:', e);
   }
+}
 
-  async function loadAllPrograms() {
-    try {
-      const [{ data: programs }, { data: plans }] = await Promise.all([
-        db.from('programs').select('*').order('created_at', { ascending: false }),
-        db.from('workout_plans').select('*'),
-      ]);
+function getTodaysPlan(plans) {
+  const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+  
+  if (today === 0) return null; // Rest day
+  
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const sorted = [...plans].sort((a, b) => {
+    const aDay = dayNames.indexOf(a.day_of_week.toLowerCase());
+    const bDay = dayNames.indexOf(b.day_of_week.toLowerCase());
+    return aDay - bDay;
+  });
+  
+  // Cycle through available plans
+  const trainingDays = sorted.filter(p => p.day_of_week.toLowerCase() !== 'sunday');
+  if (trainingDays.length === 0) return null;
+  
+  const index = (today - 1) % trainingDays.length;
+  return trainingDays[index];
+}
 
-      // Active program banner
-      const active   = programs?.find(p => p.active);
-      const activeSect = document.getElementById('active-prog-section');
-      if (active) {
-        const days = plans?.filter(p => p.program_id === active.id) || [];
-        activeSect.innerHTML = `
-          <div class="active-prog-card">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--green);letter-spacing:0.1em;margin-bottom:6px;">▲ ACTIVE PROGRAM</div>
-            <div style="font-size:1.05rem;font-weight:800;margin-bottom:4px;">${active.name}</div>
-            ${active.description ? `<div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--muted);">${active.description}</div>` : ''}
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;">
-              ${days.map(d => `
-                <div style="background:rgba(91,106,240,0.1);border:1px solid rgba(91,106,240,0.2);border-radius:8px;padding:4px 10px;font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--accent2);">
-                  ${d.day_of_week} · ${d.muscle_group}
-                </div>`).join('')}
-            </div>
-          </div>`;
-      } else {
-        activeSect.innerHTML = '';
-      }
+function renderTodaysWorkout() {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const session = JSON.parse(localStorage.getItem('nomis_session_' + todayStr) || '{"checked":[]}');
+  
+  const done = session.checked.length;
+  const total = todayExercises.length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  
+  const dayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  
+  let html = `
+    <div style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <span class="day-tag">${dayName}</span>
+        ${todayPlan.muscle_group ? `<span class="day-muscle-tag">${todayPlan.muscle_group}</span>` : ''}
+      </div>
+      <div class="workout-progress">
+        <div class="workout-progress-bar">
+          <div class="workout-progress-fill" style="width:${pct}%"></div>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text-secondary);">${done}/${total} complete</span>
+      </div>
+    </div>
+    <div class="exercise-checklist">`;
+  
+  todayExercises.forEach(wpe => {
+    const ex = wpe.exercises;
+    const isDone = session.checked.includes(wpe.id);
+    const sets = wpe.target_sets ? `${wpe.target_sets} sets` : '';
+    const reps = wpe.target_reps ? `${wpe.target_reps} reps` : '';
+    const setsReps = [sets, reps].filter(Boolean).join(' × ');
+    
+    html += `
+      <div class="ex-check-item ${isDone ? 'done' : ''}" onclick="toggleExercise('${wpe.id}')">
+        <div class="ex-check-box">${isDone ? '✓' : ''}</div>
+        <div style="flex:1;">
+          <div class="ex-check-name">${ex.name}</div>
+          ${wpe.notes ? `<div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">${wpe.notes}</div>` : ''}
+        </div>
+        ${setsReps ? `<div class="ex-check-sets">${setsReps}</div>` : ''}
+      </div>`;
+  });
+  
+  html += '</div>';
+  
+  document.getElementById('todays-workout').innerHTML = html;
+  document.getElementById('log-workout-btn').style.display = 'block';
+}
 
-      // Programs list
-      const listEl = document.getElementById('all-programs-list');
-      if (!programs?.length) {
-        listEl.innerHTML = '<div class="empty">No programs yet.<br>Create your first workout program above.</div>';
-        return;
-      }
-      listEl.innerHTML = programs.map(p => {
-        const days = plans?.filter(pl => pl.program_id === p.id) || [];
-        return `
-          <div class="prog-card ${p.active ? 'is-active' : ''}">
-            <div style="flex:1;min-width:0;">
-              <div class="prog-card-name">
-                ${p.name}
-                ${p.active ? '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.58rem;color:var(--green);margin-left:8px;">● ACTIVE</span>' : ''}
+function toggleExercise(wpeId) {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const key = 'nomis_session_' + todayStr;
+  const session = JSON.parse(localStorage.getItem(key) || '{"checked":[]}');
+  
+  const index = session.checked.indexOf(wpeId);
+  if (index >= 0) {
+    session.checked.splice(index, 1);
+  } else {
+    session.checked.push(wpeId);
+  }
+  
+  localStorage.setItem(key, JSON.stringify(session));
+  renderTodaysWorkout();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// PROGRAMS PAGE
+// ═══════════════════════════════════════════════════════════════════════
+
+async function loadPrograms() {
+  try {
+    const { data: programs } = await db
+      .from('programs')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    const container = document.getElementById('programs-list');
+    
+    if (!programs || programs.length === 0) {
+      container.innerHTML = `
+        <div class="card" style="text-align:center;padding:40px 20px;">
+          <div style="color:var(--text-secondary);margin-bottom:16px;">No programs yet</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:20px;">Create your first training protocol</div>
+        </div>`;
+      return;
+    }
+    
+    // Get workout plans for all programs
+    const { data: plans } = await db
+      .from('workout_plans')
+      .select('*');
+    
+    let html = '';
+    
+    programs.forEach(prog => {
+      const progPlans = plans.filter(p => p.program_id === prog.id);
+      const isActive = prog.active;
+      
+      html += `
+        <div class="card" style="margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="flex:1;">
+              <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;">
+                ${prog.name}
+                ${isActive ? '<span style="font-size:0.65rem;color:var(--energy-green);margin-left:8px;">● ACTIVE</span>' : ''}
               </div>
-              <div class="prog-card-meta">${days.length} day${days.length !== 1 ? 's' : ''}${p.description ? ' · ' + p.description : ''}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-secondary);">
+                ${progPlans.length} day${progPlans.length !== 1 ? 's' : ''}
+                ${prog.description ? ' · ' + prog.description : ''}
+              </div>
             </div>
-            <div class="prog-card-actions">
-              ${!p.active ? `<button class="btn-sm" onclick="activateProgram('${p.id}')">Set Active</button>` : ''}
-              <button class="btn-danger" onclick="deleteProgram('${p.id}')">✕</button>
+            <div style="display:flex;gap:8px;">
+              ${!isActive ? `<button class="btn btn-secondary" style="font-size:0.75rem;padding:8px 16px;" onclick="activateProgram('${prog.id}')">Set Active</button>` : ''}
+              <button class="btn" style="font-size:0.75rem;padding:8px 16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--danger-red);" onclick="deleteProgram('${prog.id}')">Delete</button>
             </div>
-          </div>`;
-      }).join('');
-    } catch(e) { console.error('Programs load error:', e); }
-  }
-
-  function showProgramBuilder() {
-    builderDays = [];
-    document.getElementById('prog-name').value = '';
-    document.getElementById('prog-desc').value = '';
-    renderBuilderDays();
-    const el = document.getElementById('program-builder');
-    el.style.display = 'block';
-    setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-    // Pre-load exercises for the picker
-    if (!allExercises.length) loadExercisesData();
-  }
-
-  function hideProgramBuilder() {
-    document.getElementById('program-builder').style.display = 'none';
-    builderDays = [];
-  }
-
-  function addBuilderDay() {
-    builderDays.push({
-      day_of_week:  DAYS_OF_WEEK[builderDays.length % 7],
-      muscle_group: MUSCLE_GROUPS[0],
-      exercises: [],
-    });
-    renderBuilderDays();
-  }
-
-  function removeBuilderDay(index) {
-    builderDays.splice(index, 1);
-    renderBuilderDays();
-  }
-
-  function renderBuilderDays() {
-    const container = document.getElementById('prog-days-container');
-    if (!builderDays.length) { container.innerHTML = ''; return; }
-
-    container.innerHTML = builderDays.map((day, i) => `
-      <div class="prog-day-card" id="builder-day-${i}">
-        <div class="prog-day-header">
-          <div class="prog-day-selects">
-            <select class="field-sel" onchange="builderDays[${i}].day_of_week=this.value">
-              ${DAYS_OF_WEEK.map(d => `<option value="${d}" ${day.day_of_week===d?'selected':''}>${d.charAt(0).toUpperCase()+d.slice(1)}</option>`).join('')}
-            </select>
-            <select class="field-sel" onchange="builderDays[${i}].muscle_group=this.value">
-              ${MUSCLE_GROUPS.map(m => `<option value="${m}" ${day.muscle_group===m?'selected':''}>${m.charAt(0).toUpperCase()+m.slice(1)}</option>`).join('')}
-            </select>
           </div>
-          <button class="prog-ex-remove" onclick="removeBuilderDay(${i})" style="color:var(--red);font-size:1rem;">✕</button>
-        </div>
-        <div class="prog-day-body">
-          ${day.exercises.length
-            ? day.exercises.map((ex, j) => renderBuilderExercise(i, j, ex)).join('')
-            : '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.65rem;color:var(--muted);padding:6px 0 8px;">No exercises added yet.</div>'
-          }
-          <button class="btn-outline" onclick="openExercisePicker(${i})" style="width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:0.68rem;">
-            + Add Exercise
-          </button>
-        </div>
-      </div>`).join('');
-  }
-
-  function renderBuilderExercise(dayIdx, exIdx, ex) {
-    const isFirst = exIdx === 0;
-    const isLast  = exIdx === builderDays[dayIdx].exercises.length - 1;
-    return `
-      <div class="prog-exercise-item">
-        <div class="prog-ex-controls">
-          <button class="prog-ex-ctrl-btn" onclick="moveExUp(${dayIdx},${exIdx})" ${isFirst?'disabled':''}>▲</button>
-          <button class="prog-ex-ctrl-btn" onclick="moveExDown(${dayIdx},${exIdx})" ${isLast?'disabled':''}>▼</button>
-        </div>
-        <div style="flex:1;min-width:0;">
-          <div class="prog-ex-name">${ex.name}</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:0.57rem;color:var(--muted);">${ex.muscle_group} · ${ex.equipment||''}</div>
-        </div>
-        <div class="prog-ex-inputs">
-          <div class="prog-ex-col">
-            <input class="prog-ex-input" placeholder="3" value="${ex.target_sets||''}"
-              onchange="builderDays[${dayIdx}].exercises[${exIdx}].target_sets=this.value" />
-            <div class="prog-ex-lbl">sets</div>
-          </div>
-          <div class="prog-ex-col">
-            <input class="prog-ex-input" placeholder="8-10" value="${ex.target_reps||''}" style="width:54px;"
-              onchange="builderDays[${dayIdx}].exercises[${exIdx}].target_reps=this.value" />
-            <div class="prog-ex-lbl">reps</div>
-          </div>
-          <div class="prog-ex-col">
-            <input class="prog-ex-input" placeholder="—" value="${ex.target_weight||''}"
-              onchange="builderDays[${dayIdx}].exercises[${exIdx}].target_weight=this.value" />
-            <div class="prog-ex-lbl">lbs</div>
-          </div>
-        </div>
-        <button class="prog-ex-remove" onclick="removeExFromDay(${dayIdx},${exIdx})">✕</button>
-      </div>`;
-  }
-
-  function moveExUp(dayIdx, exIdx) {
-    if (exIdx === 0) return;
-    const exs = builderDays[dayIdx].exercises;
-    [exs[exIdx-1], exs[exIdx]] = [exs[exIdx], exs[exIdx-1]];
-    renderBuilderDays();
-  }
-
-  function moveExDown(dayIdx, exIdx) {
-    const exs = builderDays[dayIdx].exercises;
-    if (exIdx >= exs.length - 1) return;
-    [exs[exIdx], exs[exIdx+1]] = [exs[exIdx+1], exs[exIdx]];
-    renderBuilderDays();
-  }
-
-  function removeExFromDay(dayIdx, exIdx) {
-    builderDays[dayIdx].exercises.splice(exIdx, 1);
-    renderBuilderDays();
-  }
-
-  function openExercisePicker(dayIndex) {
-    builderActiveDayIndex = dayIndex;
-    document.getElementById('picker-search').value = '';
-    document.getElementById('picker-muscle').value = '';
-    renderPickerGrid();
-    document.getElementById('exercise-picker-modal').classList.add('open');
-  }
-
-  function closeExercisePicker() {
-    document.getElementById('exercise-picker-modal').classList.remove('open');
-    builderActiveDayIndex = null;
-  }
-
-  function filterPicker() {
-    renderPickerGrid();
-  }
-
-  function renderPickerGrid() {
-    const search = document.getElementById('picker-search').value.toLowerCase();
-    const muscle = document.getElementById('picker-muscle').value;
-    let list = allExercises;
-    if (search) list = list.filter(e => e.name.toLowerCase().includes(search) || e.muscle_group.includes(search));
-    if (muscle) list = list.filter(e => e.muscle_group === muscle);
-
-    const grid = document.getElementById('picker-grid');
-    if (!list.length) {
-      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">No exercises found.</div>';
-      return;
-    }
-    grid.innerHTML = list.map(ex => `
-      <div class="ex-picker-item" onclick="addExerciseToDay('${ex.id}','${ex.name.replace(/'/g,"\\'")}','${ex.muscle_group}','${ex.equipment||''}')">
-        <div class="ex-picker-name">${ex.name}</div>
-        <div class="ex-picker-meta">${ex.muscle_group} · ${ex.equipment||''}</div>
-      </div>`).join('');
-  }
-
-  function addExerciseToDay(exerciseId, name, muscle_group, equipment) {
-    if (builderActiveDayIndex === null) return;
-    builderDays[builderActiveDayIndex].exercises.push({
-      exercise_id: exerciseId, name, muscle_group, equipment,
-      target_sets: '', target_reps: '', target_weight: '',
-    });
-    closeExercisePicker();
-    renderBuilderDays();
-  }
-
-  async function saveNewProgram() {
-    const name = document.getElementById('prog-name').value.trim();
-    if (!name) { alert('Please enter a program name.'); return; }
-    if (!builderDays.length) { alert('Add at least one training day.'); return; }
-
-    const btn = document.querySelector('#program-builder .btn-primary');
-    btn.disabled = true; btn.textContent = 'Saving…';
-
-    try {
-      const { data: prog, error: pErr } = await db.from('programs')
-        .insert({ name, description: document.getElementById('prog-desc').value.trim() || null, active: false })
-        .select().single();
-      if (pErr) throw pErr;
-
-      for (const day of builderDays) {
-        const { data: plan, error: plErr } = await db.from('workout_plans')
-          .insert({ program_id: prog.id, day_of_week: day.day_of_week, muscle_group: day.muscle_group })
-          .select().single();
-        if (plErr) throw plErr;
-
-        if (day.exercises.length) {
-          const rows = day.exercises.map((ex, idx) => ({
-            plan_id:       plan.id,
-            exercise_id:   ex.exercise_id,
-            order_index:   idx,
-            target_sets:   parseInt(ex.target_sets)   || null,
-            target_reps:   ex.target_reps             || null,
-            target_weight: parseFloat(ex.target_weight) || null,
-          }));
-          const { error: exErr } = await db.from('workout_plan_exercises').insert(rows);
-          if (exErr) console.error('Exercise insert error:', exErr);
-        }
-      }
-
-      hideProgramBuilder();
-      await loadAllPrograms();
-    } catch(e) {
-      console.error('Save program error:', e);
-      alert('Failed to save: ' + e.message);
-      btn.disabled = false; btn.textContent = 'Save Program';
-    }
-  }
-
-  async function activateProgram(programId) {
-    try {
-      await db.from('programs').update({ active: false }).neq('id', programId);
-      await db.from('programs').update({ active: true  }).eq('id', programId);
-      await loadAllPrograms();
-    } catch(e) { console.error('Activate error:', e); }
-  }
-
-  async function deleteProgram(programId) {
-    if (!confirm('Delete this program? This cannot be undone.')) return;
-    try {
-      await db.from('programs').delete().eq('id', programId);
-      await loadAllPrograms();
-    } catch(e) { console.error('Delete error:', e); }
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // EXERCISE LIBRARY MODULE
-  // ═══════════════════════════════════════════════════════════════════════
-
-  let allExercises = [];
-
-  const MUSCLE_COLORS = {
-    chest: 'muscle-color-chest', back: 'muscle-color-back',
-    legs:  'muscle-color-legs',  shoulders: 'muscle-color-shoulders',
-    arms:  'muscle-color-arms',  core: 'muscle-color-core',
-  };
-
-  async function loadExercisesData() {
-    if (allExercises.length) return;
-    try {
-      const { data } = await db.from('exercises').select('*').order('muscle_group').order('name');
-      allExercises = data || [];
-    } catch(e) { console.error('Load exercises error:', e); }
-  }
-
-  async function loadExercisesPage() {
-    await loadExercisesData();
-    const seedBtn = document.getElementById('seed-btn');
-    if (seedBtn) seedBtn.style.display = allExercises.length ? 'none' : 'block';
-    filterAndRenderExercises();
-  }
-
-  function filterAndRenderExercises() {
-    const search    = (document.getElementById('ex-search')?.value    || '').toLowerCase();
-    const muscle    =  document.getElementById('ex-muscle')?.value    || '';
-    const equipment =  document.getElementById('ex-equipment')?.value || '';
-
-    let list = allExercises;
-    if (search)    list = list.filter(e => e.name.toLowerCase().includes(search) || e.muscle_group.includes(search));
-    if (muscle)    list = list.filter(e => e.muscle_group === muscle);
-    if (equipment) list = list.filter(e => e.equipment    === equipment);
-
-    const grid = document.getElementById('exercise-grid');
-    if (!grid) return;
-
-    if (!list.length) {
-      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">No exercises match your filters.</div>';
-      return;
-    }
-
-    grid.innerHTML = list.map(ex => `
-      <div class="exercise-card" onclick="showExerciseDetail('${ex.id}')">
-        <div class="ex-card-muscle ${MUSCLE_COLORS[ex.muscle_group]||''}">${ex.muscle_group}</div>
-        <div class="ex-card-name">${ex.name}</div>
-        <div class="ex-card-equipment">${ex.equipment||'—'} · ${ex.difficulty||''}</div>
-      </div>`).join('');
-  }
-
-  async function showExerciseDetail(exerciseId) {
-    const ex = allExercises.find(e => e.id === exerciseId);
-    if (!ex) return;
-
-    document.getElementById('ex-detail-title').textContent = ex.name;
-    document.getElementById('ex-detail-body').innerHTML = `
-      <div class="ex-detail-tags">
-        <span class="ex-tag">${ex.muscle_group}</span>
-        <span class="ex-tag">${ex.equipment || 'bodyweight'}</span>
-        <span class="ex-tag">${ex.difficulty || 'intermediate'}</span>
-      </div>
-      <div class="ex-detail-desc" id="ex-detail-desc-text">
-        <span style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:0.7rem;">Fetching details…</span>
-      </div>`;
-
-    document.getElementById('exercise-detail-modal').classList.add('open');
-
-    // Try middleware for description / form cues
-    try {
-      const res = await fetch(`${MIDDLEWARE_URL}/exercise-lookup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-nomis-key': NOMIS_KEY },
-        body: JSON.stringify({ exercise: ex.name, muscle_group: ex.muscle_group }),
-      });
-      const data = await res.json();
-      const descEl = document.getElementById('ex-detail-desc-text');
-      if (!descEl) return;
-
-      let html = `<p class="ex-detail-desc">${data.description || defaultDesc(ex)}</p>`;
-      if (data.form_cues?.length) {
-        html += `<div style="margin-top:14px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Form Cues</div>
-          <ul style="padding-left:18px;font-size:0.8rem;line-height:2;color:var(--text);">
-            ${data.form_cues.map(c => `<li>${c}</li>`).join('')}
-          </ul></div>`;
-      }
-      descEl.outerHTML = html;
-
-      if (data.image_url) {
-        const body = document.getElementById('ex-detail-body');
-        const img = document.createElement('img');
-        img.className = 'ex-detail-img'; img.src = data.image_url; img.alt = ex.name;
-        img.onerror = () => img.remove();
-        body.insertBefore(img, body.firstChild);
-      }
-    } catch(e) {
-      const descEl = document.getElementById('ex-detail-desc-text');
-      if (descEl) descEl.outerHTML = `<p class="ex-detail-desc">${defaultDesc(ex)}</p>`;
-    }
-  }
-
-  function defaultDesc(ex) {
-    return `${ex.name} is a ${ex.difficulty||'intermediate'} ${ex.equipment||'bodyweight'} exercise that primarily targets the ${ex.muscle_group} muscles.`;
-  }
-
-  function closeExerciseDetailModal() {
-    document.getElementById('exercise-detail-modal').classList.remove('open');
-  }
-
-  async function checkAndSeedExercises() {
-    if (!confirm('Seed the exercise library with 53 common exercises?')) return;
-    const btn = document.getElementById('seed-btn');
-    btn.textContent = 'Seeding…'; btn.disabled = true;
-    try {
-      const { error } = await db.from('exercises').insert(getSeedExercises());
-      if (error) throw error;
-      allExercises = [];
-      await loadExercisesPage();
-    } catch(e) {
-      alert('Seed failed: ' + e.message);
-      btn.textContent = 'Seed Library'; btn.disabled = false;
-    }
-  }
-
-  function getSeedExercises() {
-    return [
-      // Chest
-      { name:'Bench Press',             muscle_group:'chest',     equipment:'barbell',    difficulty:'intermediate' },
-      { name:'Incline Bench Press',     muscle_group:'chest',     equipment:'barbell',    difficulty:'intermediate' },
-      { name:'Decline Bench Press',     muscle_group:'chest',     equipment:'barbell',    difficulty:'intermediate' },
-      { name:'Dumbbell Press',          muscle_group:'chest',     equipment:'dumbbell',   difficulty:'beginner' },
-      { name:'Incline Dumbbell Press',  muscle_group:'chest',     equipment:'dumbbell',   difficulty:'beginner' },
-      { name:'Dumbbell Flyes',          muscle_group:'chest',     equipment:'dumbbell',   difficulty:'beginner' },
-      { name:'Cable Flyes',             muscle_group:'chest',     equipment:'cable',      difficulty:'intermediate' },
-      { name:'Push-ups',                muscle_group:'chest',     equipment:'bodyweight', difficulty:'beginner' },
-      { name:'Dips',                    muscle_group:'chest',     equipment:'bodyweight', difficulty:'intermediate' },
-      { name:'Pec Deck',                muscle_group:'chest',     equipment:'machine',    difficulty:'beginner' },
-      { name:'Chest Dips',              muscle_group:'chest',     equipment:'bodyweight', difficulty:'intermediate' },
-      // Back
-      { name:'Deadlift',                muscle_group:'back',      equipment:'barbell',    difficulty:'advanced' },
-      { name:'Barbell Row',             muscle_group:'back',      equipment:'barbell',    difficulty:'intermediate' },
-      { name:'Dumbbell Row',            muscle_group:'back',      equipment:'dumbbell',   difficulty:'beginner' },
-      { name:'Pull-ups',                muscle_group:'back',      equipment:'bodyweight', difficulty:'intermediate' },
-      { name:'Lat Pulldown',            muscle_group:'back',      equipment:'cable',      difficulty:'beginner' },
-      { name:'Seated Cable Row',        muscle_group:'back',      equipment:'cable',      difficulty:'beginner' },
-      { name:'T-Bar Row',               muscle_group:'back',      equipment:'barbell',    difficulty:'intermediate' },
-      { name:'Face Pulls',              muscle_group:'back',      equipment:'cable',      difficulty:'beginner' },
-      // Legs
-      { name:'Squat',                   muscle_group:'legs',      equipment:'barbell',    difficulty:'intermediate' },
-      { name:'Front Squat',             muscle_group:'legs',      equipment:'barbell',    difficulty:'advanced' },
-      { name:'Romanian Deadlift',       muscle_group:'legs',      equipment:'barbell',    difficulty:'intermediate' },
-      { name:'Leg Press',               muscle_group:'legs',      equipment:'machine',    difficulty:'beginner' },
-      { name:'Hack Squat',              muscle_group:'legs',      equipment:'machine',    difficulty:'intermediate' },
-      { name:'Leg Curl',                muscle_group:'legs',      equipment:'machine',    difficulty:'beginner' },
-      { name:'Leg Extension',           muscle_group:'legs',      equipment:'machine',    difficulty:'beginner' },
-      { name:'Lunges',                  muscle_group:'legs',      equipment:'bodyweight', difficulty:'beginner' },
-      { name:'Bulgarian Split Squat',   muscle_group:'legs',      equipment:'dumbbell',   difficulty:'intermediate' },
-      { name:'Calf Raises',             muscle_group:'legs',      equipment:'bodyweight', difficulty:'beginner' },
-      // Shoulders
-      { name:'Overhead Press',          muscle_group:'shoulders', equipment:'barbell',    difficulty:'intermediate' },
-      { name:'Dumbbell Shoulder Press', muscle_group:'shoulders', equipment:'dumbbell',   difficulty:'beginner' },
-      { name:'Lateral Raises',          muscle_group:'shoulders', equipment:'dumbbell',   difficulty:'beginner' },
-      { name:'Front Raises',            muscle_group:'shoulders', equipment:'dumbbell',   difficulty:'beginner' },
-      { name:'Rear Delt Flyes',         muscle_group:'shoulders', equipment:'dumbbell',   difficulty:'beginner' },
-      { name:'Arnold Press',            muscle_group:'shoulders', equipment:'dumbbell',   difficulty:'intermediate' },
-      // Arms
-      { name:'Barbell Curl',            muscle_group:'arms',      equipment:'barbell',    difficulty:'beginner' },
-      { name:'Dumbbell Curl',           muscle_group:'arms',      equipment:'dumbbell',   difficulty:'beginner' },
-      { name:'Hammer Curl',             muscle_group:'arms',      equipment:'dumbbell',   difficulty:'beginner' },
-      { name:'Preacher Curl',           muscle_group:'arms',      equipment:'barbell',    difficulty:'beginner' },
-      { name:'Cable Curl',              muscle_group:'arms',      equipment:'cable',      difficulty:'beginner' },
-      { name:'Tricep Pushdown',         muscle_group:'arms',      equipment:'cable',      difficulty:'beginner' },
-      { name:'Overhead Tricep Extension',muscle_group:'arms',     equipment:'cable',      difficulty:'beginner' },
-      { name:'Skull Crushers',          muscle_group:'arms',      equipment:'barbell',    difficulty:'intermediate' },
-      { name:'Close-Grip Bench Press',  muscle_group:'arms',      equipment:'barbell',    difficulty:'intermediate' },
-      // Core
-      { name:'Planks',                  muscle_group:'core',      equipment:'bodyweight', difficulty:'beginner' },
-      { name:'Crunches',                muscle_group:'core',      equipment:'bodyweight', difficulty:'beginner' },
-      { name:'Russian Twists',          muscle_group:'core',      equipment:'bodyweight', difficulty:'beginner' },
-      { name:'Leg Raises',              muscle_group:'core',      equipment:'bodyweight', difficulty:'beginner' },
-      { name:'Ab Wheel',                muscle_group:'core',      equipment:'bodyweight', difficulty:'intermediate' },
-      { name:'Cable Crunches',          muscle_group:'core',      equipment:'cable',      difficulty:'intermediate' },
-      { name:'Hanging Leg Raises',      muscle_group:'core',      equipment:'bodyweight', difficulty:'intermediate' },
-    ];
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // PWA + KEYBOARD FIXES
-  // ═══════════════════════════════════════════════════════════════════════
-
-  // Dismiss keyboard when tapping outside the chat input
-  document.addEventListener('touchstart', function(e) {
-    if (!e.target.closest('.chat-input-wrap') &&
-        !e.target.closest('.chat-send')       &&
-        !e.target.closest('.chat-attach')) {
-      chatInput.blur();
-    }
-  }, { passive: true });
-
-  // Flag standalone PWA mode for potential CSS hooks
-  if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
-    document.documentElement.classList.add('pwa-standalone');
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // WORKOUT TRACKER
-  // ═══════════════════════════════════════════════════════════════════════
-
-  let activeProgram = null;
-  let todayPlan = null;
-  let todayPlanExercises = [];
-
-  function getMuscleColor(muscle) {
-    const map = { chest:'#f05b6a', back:'#5bcff0', legs:'#22d48a', shoulders:'#f0b15b', arms:'#a78bfa', core:'#5b6af0' };
-    return map[(muscle||'').toLowerCase()] || 'var(--accent)';
-  }
-
-  function renderWorkoutHistory(woData) {
-    const el = document.getElementById('workout-history');
-    if (!el) return;
-    if (!woData?.length) {
-      el.innerHTML = '<div class="empty">No workouts logged yet.<br>Complete a session and tap Log Workout!</div>';
-      return;
-    }
-    // Update "Last Workout" stat card
-    document.getElementById('stat-workout').textContent = woData[0].muscle_group || 'Trained';
-    document.getElementById('stat-workout-delta').textContent = woData[0].date;
-    el.innerHTML = woData.map(w => {
-      const f = (w.feeling||'').toLowerCase().replace(/[^a-z]/g,'');
-      return `<div class="history-item">
-        <div class="history-dot" style="background:${getMuscleColor(w.muscle_group)}"></div>
-        <div class="history-body">
-          <div class="history-title">${w.title || w.muscle_group || 'Workout'}</div>
-          <div class="history-meta">${w.date}${w.duration_min?' · '+w.duration_min+'min':''}${w.muscle_group?' · '+w.muscle_group:''}</div>
-        </div>
-        ${w.feeling?`<div class="history-feeling ${f}">${w.feeling}</div>`:''}
-      </div>`;
-    }).join('');
-  }
-
-  async function loadActiveProgramForDashboard() {
-    const bannerEl   = document.getElementById('dash-program-banner');
-    const workoutBody = document.getElementById('todays-workout-body');
-    try {
-      const { data: programs } = await db.from('programs').select('*').eq('active', true).limit(1);
-      if (!programs?.length) {
-        bannerEl.innerHTML = `<div class="empty" style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:14px;padding:20px;">No active program. Go to <b>Programs</b> to create one.</div>`;
-        workoutBody.innerHTML = `<div class="empty">No program selected.</div>`;
-        return;
-      }
-      activeProgram = programs[0];
-      bannerEl.innerHTML = `
-        <div class="program-banner">
-          <div>
-            <div class="program-banner-label">▲ Active Program</div>
-            <div class="program-banner-name">${activeProgram.name}</div>
-            ${activeProgram.description ? `<div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--muted);margin-top:4px;">${activeProgram.description}</div>` : ''}
-          </div>
-          <button class="program-select-btn" onclick="showPage('programs', document.querySelector('.nav-item[onclick*=programs]'))">Manage →</button>
         </div>`;
-
-      const { data: plans } = await db.from('workout_plans').select('*').eq('program_id', activeProgram.id);
-      if (!plans?.length) {
-        workoutBody.innerHTML = `<div class="empty">No training days in this program yet.</div>`;
-        return;
-      }
-
-      todayPlan = getTodayPlan(plans);
-      if (!todayPlan) {
-        workoutBody.innerHTML = `
-          <div class="empty" style="padding:20px 0;">
-            <div style="font-size:1.4rem;margin-bottom:8px;">🛋️</div>
-            <div style="font-weight:700;margin-bottom:4px;">Rest Day</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;">Recover well. Next session tomorrow.</div>
-          </div>`;
-        document.getElementById('log-workout-btn').style.display = 'none';
-        return;
-      }
-
-      const { data: wpeData } = await db.from('workout_plan_exercises')
-        .select('*, exercises(id, name, muscle_group, equipment)')
-        .eq('plan_id', todayPlan.id)
-        .order('order_index');
-      todayPlanExercises = wpeData || [];
-      renderTodaysWorkout();
-
-    } catch(e) {
-      console.error('Program load error:', e);
-      if (bannerEl) bannerEl.innerHTML = '';
-      if (workoutBody) workoutBody.innerHTML = `<div class="empty">Failed to load program data.</div>`;
-    }
+    });
+    
+    container.innerHTML = html;
+    
+  } catch (e) {
+    console.error('Load programs error:', e);
   }
+}
 
-  function getTodayPlan(plans) {
-    const today = new Date().getDay(); // 0 = Sunday
-    if (today === 0) return null; // Sunday = rest
-    const ORDER = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-    const sorted = [...plans].sort((a,b) =>
-      ORDER.indexOf(a.day_of_week.toLowerCase()) - ORDER.indexOf(b.day_of_week.toLowerCase())
-    );
-    // Cycle through training days: Mon(1)→idx0, Tue(2)→idx1, ... wrapping for PPL etc.
-    const idx = (today - 1) % sorted.length;
-    return sorted[idx] || null;
+async function activateProgram(programId) {
+  try {
+    await db.from('programs').update({ active: false }).neq('id', programId);
+    await db.from('programs').update({ active: true }).eq('id', programId);
+    await loadPrograms();
+    await loadDashboard();
+  } catch (e) {
+    console.error('Activate error:', e);
   }
+}
 
-  function renderTodaysWorkout() {
-    const body = document.getElementById('todays-workout-body');
-    if (!todayPlanExercises.length) {
-      body.innerHTML = `<div class="empty">No exercises found for today's plan.</div>`;
+async function deleteProgram(programId) {
+  if (!confirm('Delete this program? This cannot be undone.')) return;
+  
+  try {
+    await db.from('programs').delete().eq('id', programId);
+    await loadPrograms();
+    await loadDashboard();
+  } catch (e) {
+    console.error('Delete error:', e);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// WORKOUTS PAGE
+// ═══════════════════════════════════════════════════════════════════════
+
+async function loadWorkouts() {
+  try {
+    const { data: workouts } = await db
+      .from('workouts')
+      .select('*')
+      .order('date', { ascending: false })
+      .limit(20);
+    
+    const container = document.getElementById('workouts-list');
+    
+    if (!workouts || workouts.length === 0) {
+      container.innerHTML = `
+        <div class="card" style="text-align:center;padding:40px 20px;">
+          <div style="color:var(--text-secondary);">No workouts logged yet</div>
+        </div>`;
       return;
     }
-    const todayStr = new Date().toISOString().split('T')[0];
-    const session  = JSON.parse(localStorage.getItem('nomis_session_' + todayStr) || '{"checked":[]}');
-    const dayName  = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-    const done     = session.checked.length;
-    const total    = todayPlanExercises.length;
-    const pct      = total ? Math.round((done / total) * 100) : 0;
-
-    document.getElementById('log-workout-btn').style.display = 'block';
-
-    body.innerHTML = `
-      <div style="margin-bottom:14px;">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
-          <span class="day-tag">${dayName}</span>
-          ${todayPlan.muscle_group ? `<span class="day-muscle-tag">${todayPlan.muscle_group}</span>` : ''}
-          ${todayPlan.notes ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);padding-top:4px;">${todayPlan.notes}</span>` : ''}
-        </div>
-        <div class="workout-progress">
-          <div class="workout-progress-bar">
-            <div class="workout-progress-fill" id="workout-prog-fill" style="width:${pct}%"></div>
-          </div>
-          <span id="workout-prog-text">${done}/${total} done</span>
-        </div>
-      </div>
-      <div class="exercise-checklist">
-        ${todayPlanExercises.map(wpe => {
-          const ex     = wpe.exercises;
-          const isDone = session.checked.includes(wpe.id);
-          const sets   = wpe.target_sets ? wpe.target_sets + ' sets' : '';
-          const reps   = wpe.target_reps ? wpe.target_reps + ' reps' : '';
-          const setsReps = [sets, reps].filter(Boolean).join(' × ');
-          const weight = wpe.target_weight ? ` @ ${wpe.target_weight}lbs` : '';
-          return `<div class="ex-check-item ${isDone?'done':''}" onclick="toggleExercise('${wpe.id}')">
-            <div class="ex-check-box">${isDone?'✓':''}</div>
-            <div style="flex:1;min-width:0;">
-              <div class="ex-check-name">${ex?.name || 'Exercise'}</div>
-              ${wpe.notes ? `<div class="ex-check-note">${wpe.notes}</div>` : ''}
+    
+    let html = '';
+    
+    workouts.forEach(w => {
+      const feelingEmoji = {
+        'great': '🔥',
+        'good': '💪',
+        'ok': '😐',
+        'rough': '😤'
+      }[w.feeling] || '';
+      
+      html += `
+        <div class="card" style="margin-bottom:12px;padding:16px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="font-size:1.5rem;">${feelingEmoji || '🏋️'}</div>
+            <div style="flex:1;">
+              <div style="font-weight:600;margin-bottom:2px;">${w.title || w.muscle_group || 'Workout'}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-secondary);">
+                ${w.date}
+                ${w.muscle_group ? ' · ' + w.muscle_group : ''}
+                ${w.duration_min ? ' · ' + w.duration_min + ' min' : ''}
+              </div>
             </div>
-            ${setsReps ? `<div class="ex-check-sets">${setsReps}${weight}</div>` : ''}
-          </div>`;
-        }).join('')}
-      </div>`;
+          </div>
+          ${w.description ? `<div style="margin-top:8px;font-size:0.8rem;color:var(--text-secondary);">${w.description}</div>` : ''}
+        </div>`;
+    });
+    
+    container.innerHTML = html;
+    
+  } catch (e) {
+    console.error('Load workouts error:', e);
   }
+}
 
-  function toggleExercise(wpeId) {
+// ═══════════════════════════════════════════════════════════════════════
+// LOG WORKOUT MODAL
+// ═══════════════════════════════════════════════════════════════════════
+
+function openLogModal() {
+  const muscle = todayPlan?.muscle_group || '';
+  const title = muscle ? muscle.split(',')[0].trim().replace(/\b\w/g, c => c.toUpperCase()) + ' Day' : 'Workout';
+  
+  document.getElementById('log-title').value = title;
+  document.getElementById('log-muscle').value = muscle;
+  document.getElementById('log-duration').value = '';
+  document.getElementById('log-feeling').value = '';
+  document.getElementById('log-notes').value = '';
+  
+  document.getElementById('log-modal').classList.add('open');
+}
+
+function closeLogModal() {
+  document.getElementById('log-modal').classList.remove('open');
+}
+
+async function submitWorkout() {
+  const title = document.getElementById('log-title').value.trim();
+  const muscle = document.getElementById('log-muscle').value.trim();
+  const duration = parseInt(document.getElementById('log-duration').value) || null;
+  const feeling = document.getElementById('log-feeling').value;
+  const notes = document.getElementById('log-notes').value.trim();
+  
+  if (!title) {
+    alert('Please enter a workout title');
+    return;
+  }
+  
+  const btn = document.getElementById('log-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  
+  try {
     const todayStr = new Date().toISOString().split('T')[0];
-    const key      = 'nomis_session_' + todayStr;
-    const session  = JSON.parse(localStorage.getItem(key) || '{"checked":[]}');
-    const idx = session.checked.indexOf(wpeId);
-    if (idx >= 0) session.checked.splice(idx, 1);
-    else session.checked.push(wpeId);
-    localStorage.setItem(key, JSON.stringify(session));
+    
+    await db.from('workouts').insert({
+      date: todayStr,
+      title,
+      muscle_group: muscle || null,
+      duration_min: duration,
+      feeling: feeling || null,
+      description: notes || null
+    });
+    
+    // Clear session
+    localStorage.removeItem('nomis_session_' + todayStr);
+    
+    closeLogModal();
+    await loadDashboard();
+    
+    addChatMessage('nomis', `✓ ${title} logged successfully. Great work!`);
+    
+  } catch (e) {
+    console.error('Log workout error:', e);
+    alert('Failed to save: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Log Workout';
+  }
+}
 
-    // Update item state in-place
-    const item   = document.querySelector(`.ex-check-item[onclick*="${wpeId}"]`);
-    const isDone = session.checked.includes(wpeId);
-    if (item) {
-      item.classList.toggle('done', isDone);
-      item.querySelector('.ex-check-box').textContent = isDone ? '✓' : '';
+// ═══════════════════════════════════════════════════════════════════════
+// CHAT
+// ═══════════════════════════════════════════════════════════════════════
+
+function addChatMessage(role, text) {
+  const container = document.getElementById('chat-messages');
+  const isNomis = role === 'nomis';
+  
+  const div = document.createElement('div');
+  div.style.cssText = `
+    margin-bottom: 12px;
+    padding: 12px;
+    background: ${isNomis ? 'rgba(0,212,255,0.08)' : 'rgba(168,85,247,0.08)'};
+    border: 1px solid ${isNomis ? 'rgba(0,212,255,0.2)' : 'rgba(168,85,247,0.2)'};
+    border-radius: 10px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    animation: slide-up 0.3s ease;
+  `;
+  
+  div.innerHTML = `
+    <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-secondary);margin-bottom:4px;text-transform:uppercase;">
+      ${isNomis ? '▸ NOMIS' : '▸ YOU'}
+    </div>
+    ${text}
+  `;
+  
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  
+  if (!text) return;
+  
+  addChatMessage('user', text);
+  input.value = '';
+  
+  try {
+    const res = await fetch(`${MIDDLEWARE_URL}/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-nomis-key': NOMIS_KEY
+      },
+      body: JSON.stringify({
+        message: text,
+        conversation_history: conversationHistory
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      addChatMessage('nomis', data.response);
+      
+      conversationHistory.push({ role: 'user', content: text });
+      conversationHistory.push({ role: 'assistant', content: data.response });
+      
+      if (conversationHistory.length > 20) {
+        conversationHistory = conversationHistory.slice(-20);
+      }
+      
+      // If data was logged, refresh dashboard
+      if (data.parsed_data) {
+        await loadDashboard();
+      }
+    } else {
+      addChatMessage('nomis', 'Error: ' + (data.error || 'Unknown error'));
     }
-    // Update progress bar
-    const total = todayPlanExercises.length;
-    const done  = session.checked.length;
-    const pct   = total ? Math.round((done / total) * 100) : 0;
-    const fill  = document.getElementById('workout-prog-fill');
-    const text  = document.getElementById('workout-prog-text');
-    if (fill) fill.style.width = pct + '%';
-    if (text) text.textContent = `${done}/${total} done`;
+    
+  } catch (e) {
+    addChatMessage('nomis', 'Connection error: ' + e.message);
   }
+}
 
-  function openLogModal() {
-    const muscle = todayPlan?.muscle_group || '';
-    const titleBase = muscle
-      ? muscle.split(',')[0].trim().replace(/\b\w/g, c => c.toUpperCase()) + ' Day'
-      : 'Workout';
-    document.getElementById('log-title').value   = titleBase;
-    document.getElementById('log-muscle').value  = muscle;
-    document.getElementById('log-duration').value = '';
-    document.getElementById('log-feeling').value  = '';
-    document.getElementById('log-notes').value    = '';
-    document.getElementById('log-submit-btn').disabled  = false;
-    document.getElementById('log-submit-btn').textContent = 'Log Workout';
-    document.getElementById('log-workout-modal').classList.add('open');
-  }
+// ═══════════════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════════════
 
-  function closeLogModal() {
-    document.getElementById('log-workout-modal').classList.remove('open');
-  }
+function navigateTo(page) {
+  const navItem = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if (navItem) navItem.click();
+}
 
-  async function logWorkout() {
-    const title    = document.getElementById('log-title').value.trim();
-    const muscle   = document.getElementById('log-muscle').value.trim();
-    const duration = parseInt(document.getElementById('log-duration').value) || null;
-    const feeling  = document.getElementById('log-feeling').value;
-    const notes    = document.getElementById('log-notes').value.trim();
-    if (!title) { alert('Please enter a workout title.'); return; }
+// ═══════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════
 
-    const btn = document.getElementById('log-submit-btn');
-    btn.disabled = true; btn.textContent = 'Saving…';
-    try {
-      const todayStr = new Date().toISOString().split('T')[0];
-      const { error } = await db.from('workouts').insert({
-        date:         todayStr,
-        title,
-        muscle_group: muscle  || null,
-        duration_min: duration,
-        feeling:      feeling || null,
-        description:  notes   || null,
-      });
-      if (error) throw error;
-      closeLogModal();
-      localStorage.removeItem('nomis_session_' + todayStr);
-      await loadDashboard();
-      addMessage('nomis', `✓ ${title} logged${feeling ? ' · ' + feeling : ''}. Great work!`);
-    } catch(e) {
-      console.error('Log workout error:', e);
-      alert('Failed to save: ' + e.message);
-      btn.disabled = false; btn.textContent = 'Log Workout';
-    }
-  }
+loadDashboard();
 
-  // ── Init ──────────────────────────────────────────────────────────────────
-  loadDashboard();
 </script>
+
 </body>
 </html>
