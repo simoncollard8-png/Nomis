@@ -832,6 +832,79 @@
     .prog-ex-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.85rem; padding: 2px 4px; transition: color 0.15s; flex-shrink: 0; line-height: 1; }
     .prog-ex-remove:hover { color: var(--red); }
 
+    /* ═══════════════════════════════════════════════
+       TODAY'S WORKOUT TRACKER
+    ═══════════════════════════════════════════════ */
+    .program-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(135deg, rgba(91,106,240,0.08), rgba(34,212,138,0.04));
+      border: 1px solid rgba(91,106,240,0.22); border-radius: 14px;
+      padding: 14px 18px; margin-bottom: 14px; position: relative; overflow: hidden;
+    }
+    .program-banner::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+    }
+    .program-banner-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--green);
+      letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px;
+    }
+    .program-banner-name { font-size: 1rem; font-weight: 800; color: #fff; }
+    .program-select-btn {
+      background: rgba(91,106,240,0.12); border: 1px solid rgba(91,106,240,0.25);
+      border-radius: 8px; color: var(--accent2); font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; padding: 6px 12px; cursor: pointer; white-space: nowrap;
+      transition: all 0.15s; flex-shrink: 0;
+    }
+    .program-select-btn:hover { background: rgba(91,106,240,0.22); }
+    .day-tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px;
+      border-radius: 6px; background: rgba(91,106,240,0.1);
+      border: 1px solid rgba(91,106,240,0.2); color: var(--accent2);
+    }
+    .day-muscle-tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px;
+      border-radius: 6px; background: rgba(34,212,138,0.08);
+      border: 1px solid rgba(34,212,138,0.18); color: var(--green);
+    }
+    .workout-progress {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted);
+    }
+    .workout-progress-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .workout-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 2px; transition: width 0.3s ease; }
+    .exercise-checklist { display: flex; flex-direction: column; gap: 6px; }
+    .ex-check-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 12px;
+      cursor: pointer; transition: all 0.15s; user-select: none; min-height: 56px;
+    }
+    .ex-check-item:hover { border-color: var(--border2); background: var(--bg2); }
+    .ex-check-item.done { opacity: 0.42; border-color: rgba(34,212,138,0.2); background: rgba(34,212,138,0.03); }
+    .ex-check-box {
+      width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--border2);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      transition: all 0.15s; font-size: 0.72rem; color: transparent;
+    }
+    .ex-check-item.done .ex-check-box { background: var(--green); border-color: var(--green); color: #000; }
+    .ex-check-name { flex: 1; font-size: 0.85rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .ex-check-item.done .ex-check-name { text-decoration: line-through; color: var(--muted); }
+    .ex-check-sets { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--accent2); white-space: nowrap; flex-shrink: 0; }
+    .ex-check-note { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--muted); margin-top: 2px; }
+
+    .history-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .history-item:last-child { border-bottom: none; }
+    .history-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .history-body { flex: 1; min-width: 0; }
+    .history-title { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .history-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--muted); margin-top: 2px; }
+    .history-feeling { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; padding: 3px 8px; border-radius: 6px; flex-shrink: 0; }
+    .history-feeling.great, .history-feeling.good { background: rgba(34,212,138,0.1); color: var(--green); border: 1px solid rgba(34,212,138,0.2); }
+    .history-feeling.ok, .history-feeling.meh { background: rgba(240,177,91,0.1); color: var(--amber); border: 1px solid rgba(240,177,91,0.2); }
+    .history-feeling.bad, .history-feeling.rough { background: rgba(240,91,106,0.1); color: var(--red); border: 1px solid rgba(240,91,106,0.2); }
+
     /* Scrollbar */
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -912,6 +985,13 @@
           </div>
           <div class="date-badge" id="date-display">--</div>
         </div>
+
+        <!-- Active Program Banner -->
+        <div id="dash-program-banner">
+          <div class="empty" style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:14px;padding:16px;">Loading program…</div>
+        </div>
+
+        <!-- Stats -->
         <div class="stat-grid">
           <div class="stat-card green">
             <div class="stat-label">Body Weight</div>
@@ -934,11 +1014,24 @@
             <div class="stat-delta flat" id="stat-calories-delta">no data yet</div>
           </div>
         </div>
+
+        <!-- Today's Workout -->
+        <div class="panel" style="margin-bottom:14px;">
+          <div class="panel-header">
+            <div class="panel-title">Today's Workout</div>
+            <span id="log-workout-btn" class="panel-action" style="display:none;cursor:pointer;" onclick="openLogModal()">Log Workout →</span>
+          </div>
+          <div class="panel-body" id="todays-workout-body">
+            <div class="empty">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Workout History + Peptides -->
         <div class="content-grid">
           <div class="panel">
-            <div class="panel-header"><div class="panel-title">Recent Workouts</div></div>
-            <div class="panel-body" style="padding:6px 16px;" id="recent-workouts">
-              <div class="empty">No workouts yet.<br>Tell Nomis below.</div>
+            <div class="panel-header"><div class="panel-title">Workout History</div></div>
+            <div style="padding:6px 16px;" id="workout-history">
+              <div class="empty">No workouts yet.</div>
             </div>
           </div>
           <div class="panel">
@@ -1254,6 +1347,48 @@
   </div>
 </div>
 
+<!-- Log Workout Modal -->
+<div class="modal-overlay" id="log-workout-modal" onclick="if(event.target===this)closeLogModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Log Workout</div>
+      <button class="modal-close" onclick="closeLogModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label class="field-lbl">Title</label>
+        <input class="field-in" id="log-title" placeholder="e.g. Push Day" />
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Muscle Group</label>
+        <input class="field-in" id="log-muscle" placeholder="chest, shoulders, triceps…" />
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Duration (minutes)</label>
+        <input class="field-in" id="log-duration" type="number" placeholder="60" min="1" max="300" />
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">How'd it feel?</label>
+        <select class="field-sel" id="log-feeling" style="width:100%;">
+          <option value="">Select…</option>
+          <option value="great">🔥 Great</option>
+          <option value="good">💪 Good</option>
+          <option value="ok">😐 OK</option>
+          <option value="rough">😤 Rough</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-lbl">Notes <span style="opacity:0.4;font-weight:300;font-size:0.58rem;">(optional)</span></label>
+        <textarea class="field-in" id="log-notes" placeholder="PRs hit, how you felt, what to adjust next time…" rows="3" style="resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:8px;border-top:1px solid var(--border);">
+        <button class="btn-outline" onclick="closeLogModal()">Cancel</button>
+        <button class="btn-primary" id="log-submit-btn" onclick="logWorkout()">Log Workout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   // ── Config — REPLACE WITH YOUR VALUES ────────────────────────────────────
   const MIDDLEWARE_URL = 'https://aware-clarity-production.up.railway.app';
@@ -1320,51 +1455,34 @@
   // ── Load data ─────────────────────────────────────────────────────────────
   async function loadDashboard() {
     try {
-      const { data: bsData } = await db.from('body_stats').select('*').order('date', { ascending: false }).limit(1);
-      if (bsData?.length) {
-        document.getElementById('stat-weight').innerHTML = `${bsData[0].weight_lbs}<span class="stat-unit">lbs</span>`;
-        document.getElementById('stat-weight-delta').textContent = bsData[0].date;
-      }
-
-      const { data: slData } = await db.from('sleep').select('*').order('date', { ascending: false }).limit(1);
-      if (slData?.length) {
-        document.getElementById('stat-sleep').innerHTML = `${slData[0].duration_hrs}<span class="stat-unit">hrs</span>`;
-        document.getElementById('stat-sleep-delta').textContent = slData[0].quality || slData[0].date;
-      }
-
-      const { data: woData } = await db.from('workouts').select('*').order('date', { ascending: false }).limit(1);
-      if (woData?.length) {
-        document.getElementById('stat-workout').textContent = woData[0].muscle_group || 'Trained';
-        document.getElementById('stat-workout-delta').textContent = woData[0].date;
-      }
-
       const today = new Date().toISOString().split('T')[0];
-      const { data: nuData } = await db.from('nutrition').select('calories').eq('date', today);
-      if (nuData?.length) {
-        const total = nuData.reduce((s, r) => s + (r.calories || 0), 0);
+      const [bsRes, slRes, woRes, nuRes, pepRes] = await Promise.all([
+        db.from('body_stats').select('*').order('date', { ascending: false }).limit(1),
+        db.from('sleep').select('*').order('date', { ascending: false }).limit(1),
+        db.from('workouts').select('*').order('date', { ascending: false }).limit(5),
+        db.from('nutrition').select('calories').eq('date', today),
+        db.from('peptide_cycles').select('*').eq('status', 'active'),
+      ]);
+
+      if (bsRes.data?.length) {
+        document.getElementById('stat-weight').innerHTML = `${bsRes.data[0].weight_lbs}<span class="stat-unit">lbs</span>`;
+        document.getElementById('stat-weight-delta').textContent = bsRes.data[0].date;
+      }
+      if (slRes.data?.length) {
+        document.getElementById('stat-sleep').innerHTML = `${slRes.data[0].duration_hrs}<span class="stat-unit">hrs</span>`;
+        document.getElementById('stat-sleep-delta').textContent = slRes.data[0].quality || slRes.data[0].date;
+      }
+      if (nuRes.data?.length) {
+        const total = nuRes.data.reduce((s, r) => s + (r.calories || 0), 0);
         document.getElementById('stat-calories').innerHTML = `${total.toLocaleString()}<span class="stat-unit">kcal</span>`;
-        document.getElementById('stat-calories-delta').textContent = `${nuData.length} meals`;
+        document.getElementById('stat-calories-delta').textContent = `${nuRes.data.length} meals`;
       }
 
-      const { data: recentWo } = await db.from('workouts').select('*').order('date', { ascending: false }).limit(4);
-      const woEl = document.getElementById('recent-workouts');
-      if (recentWo?.length) {
-        woEl.innerHTML = recentWo.map(w => `
-          <div class="log-item">
-            <div class="log-left">
-              <div class="log-icon">🏋️</div>
-              <div>
-                <div class="log-name">${w.title || w.muscle_group || 'Workout'}</div>
-                <div class="log-meta">${w.date}${w.feeling ? ' · '+w.feeling : ''}</div>
-              </div>
-            </div>
-          </div>`).join('');
-      }
+      renderWorkoutHistory(woRes.data);
 
-      const { data: pepData } = await db.from('peptide_cycles').select('*').eq('status', 'active');
       const pepEl = document.getElementById('active-peptides');
-      if (pepData?.length) {
-        pepEl.innerHTML = pepData.map(p => {
+      if (pepRes.data?.length) {
+        pepEl.innerHTML = pepRes.data.map(p => {
           const d = p.start_date ? Math.floor((new Date() - new Date(p.start_date)) / 86400000) : 0;
           return `<div class="cycle-item">
             <div>
@@ -1375,6 +1493,8 @@
           </div>`;
         }).join('');
       }
+
+      await loadActiveProgramForDashboard();
     } catch(e) { console.error('Dashboard load error:', e); }
   }
 
@@ -2178,6 +2298,233 @@
   // Flag standalone PWA mode for potential CSS hooks
   if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
     document.documentElement.classList.add('pwa-standalone');
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // WORKOUT TRACKER
+  // ═══════════════════════════════════════════════════════════════════════
+
+  let activeProgram = null;
+  let todayPlan = null;
+  let todayPlanExercises = [];
+
+  function getMuscleColor(muscle) {
+    const map = { chest:'#f05b6a', back:'#5bcff0', legs:'#22d48a', shoulders:'#f0b15b', arms:'#a78bfa', core:'#5b6af0' };
+    return map[(muscle||'').toLowerCase()] || 'var(--accent)';
+  }
+
+  function renderWorkoutHistory(woData) {
+    const el = document.getElementById('workout-history');
+    if (!el) return;
+    if (!woData?.length) {
+      el.innerHTML = '<div class="empty">No workouts logged yet.<br>Complete a session and tap Log Workout!</div>';
+      return;
+    }
+    // Update "Last Workout" stat card
+    document.getElementById('stat-workout').textContent = woData[0].muscle_group || 'Trained';
+    document.getElementById('stat-workout-delta').textContent = woData[0].date;
+    el.innerHTML = woData.map(w => {
+      const f = (w.feeling||'').toLowerCase().replace(/[^a-z]/g,'');
+      return `<div class="history-item">
+        <div class="history-dot" style="background:${getMuscleColor(w.muscle_group)}"></div>
+        <div class="history-body">
+          <div class="history-title">${w.title || w.muscle_group || 'Workout'}</div>
+          <div class="history-meta">${w.date}${w.duration_min?' · '+w.duration_min+'min':''}${w.muscle_group?' · '+w.muscle_group:''}</div>
+        </div>
+        ${w.feeling?`<div class="history-feeling ${f}">${w.feeling}</div>`:''}
+      </div>`;
+    }).join('');
+  }
+
+  async function loadActiveProgramForDashboard() {
+    const bannerEl   = document.getElementById('dash-program-banner');
+    const workoutBody = document.getElementById('todays-workout-body');
+    try {
+      const { data: programs } = await db.from('programs').select('*').eq('active', true).limit(1);
+      if (!programs?.length) {
+        bannerEl.innerHTML = `<div class="empty" style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:14px;padding:20px;">No active program. Go to <b>Programs</b> to create one.</div>`;
+        workoutBody.innerHTML = `<div class="empty">No program selected.</div>`;
+        return;
+      }
+      activeProgram = programs[0];
+      bannerEl.innerHTML = `
+        <div class="program-banner">
+          <div>
+            <div class="program-banner-label">▲ Active Program</div>
+            <div class="program-banner-name">${activeProgram.name}</div>
+            ${activeProgram.description ? `<div style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--muted);margin-top:4px;">${activeProgram.description}</div>` : ''}
+          </div>
+          <button class="program-select-btn" onclick="showPage('programs', document.querySelector('.nav-item[onclick*=programs]'))">Manage →</button>
+        </div>`;
+
+      const { data: plans } = await db.from('workout_plans').select('*').eq('program_id', activeProgram.id);
+      if (!plans?.length) {
+        workoutBody.innerHTML = `<div class="empty">No training days in this program yet.</div>`;
+        return;
+      }
+
+      todayPlan = getTodayPlan(plans);
+      if (!todayPlan) {
+        workoutBody.innerHTML = `
+          <div class="empty" style="padding:20px 0;">
+            <div style="font-size:1.4rem;margin-bottom:8px;">🛋️</div>
+            <div style="font-weight:700;margin-bottom:4px;">Rest Day</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;">Recover well. Next session tomorrow.</div>
+          </div>`;
+        document.getElementById('log-workout-btn').style.display = 'none';
+        return;
+      }
+
+      const { data: wpeData } = await db.from('workout_plan_exercises')
+        .select('*, exercises(id, name, muscle_group, equipment)')
+        .eq('plan_id', todayPlan.id)
+        .order('order_index');
+      todayPlanExercises = wpeData || [];
+      renderTodaysWorkout();
+
+    } catch(e) {
+      console.error('Program load error:', e);
+      if (bannerEl) bannerEl.innerHTML = '';
+      if (workoutBody) workoutBody.innerHTML = `<div class="empty">Failed to load program data.</div>`;
+    }
+  }
+
+  function getTodayPlan(plans) {
+    const today = new Date().getDay(); // 0 = Sunday
+    if (today === 0) return null; // Sunday = rest
+    const ORDER = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+    const sorted = [...plans].sort((a,b) =>
+      ORDER.indexOf(a.day_of_week.toLowerCase()) - ORDER.indexOf(b.day_of_week.toLowerCase())
+    );
+    // Cycle through training days: Mon(1)→idx0, Tue(2)→idx1, ... wrapping for PPL etc.
+    const idx = (today - 1) % sorted.length;
+    return sorted[idx] || null;
+  }
+
+  function renderTodaysWorkout() {
+    const body = document.getElementById('todays-workout-body');
+    if (!todayPlanExercises.length) {
+      body.innerHTML = `<div class="empty">No exercises found for today's plan.</div>`;
+      return;
+    }
+    const todayStr = new Date().toISOString().split('T')[0];
+    const session  = JSON.parse(localStorage.getItem('nomis_session_' + todayStr) || '{"checked":[]}');
+    const dayName  = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const done     = session.checked.length;
+    const total    = todayPlanExercises.length;
+    const pct      = total ? Math.round((done / total) * 100) : 0;
+
+    document.getElementById('log-workout-btn').style.display = 'block';
+
+    body.innerHTML = `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
+          <span class="day-tag">${dayName}</span>
+          ${todayPlan.muscle_group ? `<span class="day-muscle-tag">${todayPlan.muscle_group}</span>` : ''}
+          ${todayPlan.notes ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);padding-top:4px;">${todayPlan.notes}</span>` : ''}
+        </div>
+        <div class="workout-progress">
+          <div class="workout-progress-bar">
+            <div class="workout-progress-fill" id="workout-prog-fill" style="width:${pct}%"></div>
+          </div>
+          <span id="workout-prog-text">${done}/${total} done</span>
+        </div>
+      </div>
+      <div class="exercise-checklist">
+        ${todayPlanExercises.map(wpe => {
+          const ex     = wpe.exercises;
+          const isDone = session.checked.includes(wpe.id);
+          const sets   = wpe.target_sets ? wpe.target_sets + ' sets' : '';
+          const reps   = wpe.target_reps ? wpe.target_reps + ' reps' : '';
+          const setsReps = [sets, reps].filter(Boolean).join(' × ');
+          const weight = wpe.target_weight ? ` @ ${wpe.target_weight}lbs` : '';
+          return `<div class="ex-check-item ${isDone?'done':''}" onclick="toggleExercise('${wpe.id}')">
+            <div class="ex-check-box">${isDone?'✓':''}</div>
+            <div style="flex:1;min-width:0;">
+              <div class="ex-check-name">${ex?.name || 'Exercise'}</div>
+              ${wpe.notes ? `<div class="ex-check-note">${wpe.notes}</div>` : ''}
+            </div>
+            ${setsReps ? `<div class="ex-check-sets">${setsReps}${weight}</div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  function toggleExercise(wpeId) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const key      = 'nomis_session_' + todayStr;
+    const session  = JSON.parse(localStorage.getItem(key) || '{"checked":[]}');
+    const idx = session.checked.indexOf(wpeId);
+    if (idx >= 0) session.checked.splice(idx, 1);
+    else session.checked.push(wpeId);
+    localStorage.setItem(key, JSON.stringify(session));
+
+    // Update item state in-place
+    const item   = document.querySelector(`.ex-check-item[onclick*="${wpeId}"]`);
+    const isDone = session.checked.includes(wpeId);
+    if (item) {
+      item.classList.toggle('done', isDone);
+      item.querySelector('.ex-check-box').textContent = isDone ? '✓' : '';
+    }
+    // Update progress bar
+    const total = todayPlanExercises.length;
+    const done  = session.checked.length;
+    const pct   = total ? Math.round((done / total) * 100) : 0;
+    const fill  = document.getElementById('workout-prog-fill');
+    const text  = document.getElementById('workout-prog-text');
+    if (fill) fill.style.width = pct + '%';
+    if (text) text.textContent = `${done}/${total} done`;
+  }
+
+  function openLogModal() {
+    const muscle = todayPlan?.muscle_group || '';
+    const titleBase = muscle
+      ? muscle.split(',')[0].trim().replace(/\b\w/g, c => c.toUpperCase()) + ' Day'
+      : 'Workout';
+    document.getElementById('log-title').value   = titleBase;
+    document.getElementById('log-muscle').value  = muscle;
+    document.getElementById('log-duration').value = '';
+    document.getElementById('log-feeling').value  = '';
+    document.getElementById('log-notes').value    = '';
+    document.getElementById('log-submit-btn').disabled  = false;
+    document.getElementById('log-submit-btn').textContent = 'Log Workout';
+    document.getElementById('log-workout-modal').classList.add('open');
+  }
+
+  function closeLogModal() {
+    document.getElementById('log-workout-modal').classList.remove('open');
+  }
+
+  async function logWorkout() {
+    const title    = document.getElementById('log-title').value.trim();
+    const muscle   = document.getElementById('log-muscle').value.trim();
+    const duration = parseInt(document.getElementById('log-duration').value) || null;
+    const feeling  = document.getElementById('log-feeling').value;
+    const notes    = document.getElementById('log-notes').value.trim();
+    if (!title) { alert('Please enter a workout title.'); return; }
+
+    const btn = document.getElementById('log-submit-btn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const { error } = await db.from('workouts').insert({
+        date:         todayStr,
+        title,
+        muscle_group: muscle  || null,
+        duration_min: duration,
+        feeling:      feeling || null,
+        description:  notes   || null,
+      });
+      if (error) throw error;
+      closeLogModal();
+      localStorage.removeItem('nomis_session_' + todayStr);
+      await loadDashboard();
+      addMessage('nomis', `✓ ${title} logged${feeling ? ' · ' + feeling : ''}. Great work!`);
+    } catch(e) {
+      console.error('Log workout error:', e);
+      alert('Failed to save: ' + e.message);
+      btn.disabled = false; btn.textContent = 'Log Workout';
+    }
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────
